@@ -1,0 +1,38 @@
+<resources>
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary brand color (dark) -->
+        <item name="colorPrimary">@color/kelavs_primary_dark</item>
+        <item name="colorPrimaryVariant">@color/kelavs_primary_variant_dark</item>
+        <item name="colorOnPrimary">@color/kelavs_on_primary_dark</item>
+        
+        <!-- Secondary brand color (dark) -->
+        <item name="colorSecondary">@color/kelavs_secondary_dark</item>
+        <item name="colorSecondaryVariant">@color/kelavs_secondary_variant_dark</item>
+        <item name="colorOnSecondary">@color/kelavs_on_secondary_dark</item>
+        
+        <!-- Error color (dark) -->
+        <item name="colorError">@color/kelavs_error_dark</item>
+        <item name="colorOnError">@color/kelavs_on_error_dark</item>
+        
+        <!-- Surface colors (dark) -->
+        <item name="colorSurface">@color/kelavs_surface_dark</item>
+        <item name="colorOnSurface">@color/kelavs_on_surface_dark</item>
+        
+        <!-- Background (dark) -->
+        <item name="android:colorBackground">@color/kelavs_background_dark</item>
+        <item name="colorOnBackground">@color/kelavs_on_background_dark</item>
+        
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">false</item>
+        <item name="android:windowLightNavigationBar">false</item>
+        
+        <!-- RTL Support -->
+        <item name="android:layoutDirection">rtl</item>
+        <item name="android:textDirection">rtl</item>
+        
+        <!-- Font -->
+        <item name="android:fontFamily">@font/iran_sans</item>
+    </style>
+</resources>

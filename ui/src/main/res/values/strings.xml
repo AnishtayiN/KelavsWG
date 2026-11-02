@@ -1,0 +1,164 @@
+<resources>
+    <string name="app_name">Kelavs VPN</string>
+    <string name="permission_label">کنترل تونل‌های Kelavs VPN</string>
+    <string name="permission_description">اجازه می‌دهد برنامه‌های دیگر تونل‌های VPN را مدیریت کنند</string>
+    
+    <!-- Onboarding -->
+    <string name="welcome_title">به Kelavs VPN خوش آمدید</string>
+    <string name="welcome_subtitle">برای شروع، لینک اشتراک خود را وارد کنید.</string>
+    <string name="subscription_link_hint">https://example.com/subscription</string>
+    <string name="fetch_subscription">دریافت و افزودن اشتراک</string>
+    <string name="subscription_help">راهنمای استفاده</string>
+    <string name="help_text_1">• لینک اشتراک را از ربات @Kelavs_bot دریافت کنید</string>
+    <string name="help_text_2">• اشتراک می‌تواند شامل چندین کانفیگ WireGuard باشد</string>
+    <string name="help_text_3">• برنامه به‌صورت خودکار بهترین سرور را انتخاب می‌کند</string>
+    <string name="help_text_4">• نیازی به وارد کردن فایل کانفیگ به‌صورت دستی نیست</string>
+    <string name="support_text">پشتیبانی و خرید اشتراک:</string>
+    <string name="support_button">پشتیبانی @Matinkelavs</string>
+    <string name="buy_button">خرید اشتراک @Kelavs_bot</string>
+    
+    <!-- Dashboard -->
+    <string name="connected">متصل است</string>
+    <string name="connecting">در حال اتصال…</string>
+    <string name="reconnecting">در حال اتصال مجدد…</string>
+    <string name="disconnected">متصل نیست</string>
+    <string name="connection_error">خطا در اتصال</string>
+    <string name="connect_button">اتصال</string>
+    <string name="disconnect_button">قطع اتصال</string>
+    <string name="cancel_button">لغو</string>
+    <string name="change_server_hint">برای تغییر سرور، روی کارت سرور بزنید</string>
+    <string name="troubleshooting">عیب‌یابی و لاگ اتصال</string>
+    
+    <!-- Server Info -->
+    <string name="server_latency">تأخیر</string>
+    <string name="server_connections">اتصالات</string>
+    <string name="server_success_rate">موفقیت</string>
+    <string name="server_endpoint">سرور</string>
+    
+    <!-- Statistics -->
+    <string name="stat_download">دریافتی</string>
+    <string name="stat_upload">ارسالی</string>
+    <string name="stat_duration">مدت اتصال</string>
+    
+    <!-- Servers -->
+    <string name="servers_title">مدیریت سرورها</string>
+    <string name="auto_selection">انتخاب خودکار</string>
+    <string name="auto_selection_info">برنامه بر اساس Handshake موفق، تأخیر و پایداری بهترین سرور را انتخاب می‌کند</string>
+    <string name="no_servers">هیچ سروری یافت نشد</string>
+    <string name="no_servers_hint">ابتدا اشتراک خود را وارد کنید</string>
+    <string name="server_enabled">فعال</string>
+    <string name="server_disabled">غیرفعال</string>
+    
+    <!-- Subscription -->
+    <string name="subscription_title">اشتراک</string>
+    <string name="subscription_active">اشتراک فعال</string>
+    <string name="subscription_invalid">اشتراک نامعتبر</string>
+    <string name="subscription_none">اشتراکی تنظیم نشده</string>
+    <string name="last_update">آخرین به‌روزرسانی موفق</string>
+    <string name="last_update_attempt">آخرین تلاش برای به‌روزرسانی</string>
+    <string name="config_count">تعداد کانفیگ‌های معتبر</string>
+    <string name="refresh_subscription">به‌روزرسانی اشتراک</string>
+    <string name="refreshing">در حال به‌روزرسانی…</string>
+    <string name="delete_subscription">حذف اشتراک</string>
+    <string name="auto_update_settings">تنظیمات به‌روزرسانی خودکار</string>
+    <string name="periodic_update">به‌روزرسانی دوره‌ای</string>
+    <string name="periodic_update_desc">اشتراک به‌صورت خودکار در پس‌زمینه به‌روزرسانی می‌شود</string>
+    <string name="keep_configs_on_error">حفظ کانفیگ‌ها در خطا</string>
+    <string name="keep_configs_on_error_desc">در صورت خطای موقت، کانفیگ‌های قبلی حفظ می‌شوند</string>
+    
+    <!-- Settings -->
+    <string name="settings_title">تنظیمات</string>
+    <string name="network_optimization">بهینه‌سازی شبکه</string>
+    <string name="mtu_title">MTU</string>
+    <string name="mtu_subtitle">حداکثر واحد انتقال (پیش‌فرض: خودکار)</string>
+    <string name="custom_dns_title">DNS سفارشی</string>
+    <string name="custom_dns_subtitle">استفاده از DNS اختصاصی به جای DNS کانفیگ</string>
+    <string name="ipv6_title">حالت IPv6</string>
+    <string name="ipv6_subtitle">فعال/غیرفعال کردن پشتیبانی IPv6</string>
+    <string name="split_tunneling_title">Split Tunneling</string>
+    <string name="split_tunneling_subtitle">مسیردهی انتخاب‌شده برنامه‌ها (به‌زودی)</string>
+    
+    <string name="connection_behavior">رفتار اتصال</string>
+    <string name="auto_reconnect_title">اتصال مجدد خودکار</string>
+    <string name="auto_reconnect_subtitle">تلاش مجدد خودکار در صورت قطع اتصال</string>
+    <string name="network_change_title">تغییر شبکه</string>
+    <string name="network_change_subtitle">بازیابی اتصال در هنگام تغییر وای‌فای/دیتا</string>
+    <string name="keepalive_title">Persistent Keepalive</string>
+    <string name="keepalive_subtitle">حفظ تنظیمات Keepalive ارائه‌دهنده</string>
+    
+    <string name="appearance">نمایش</string>
+    <string name="theme_title">تم</string>
+    <string name="theme_subtitle">روشن/تیره/سیستمی</string>
+    <string name="language_title">زبان</string>
+    <string name="language_subtitle">فارسی/انگلیسی</string>
+    
+    <string name="update_section">به‌روزرسانی</string>
+    <string name="auto_update_check_title">بررسی خودکار آپدیت</string>
+    <string name="auto_update_check_subtitle">بررسی نسخه جدید در GitHub Releases</string>
+    <string name="github_repo_title">مخزن GitHub</string>
+    <string name="github_repo_subtitle">AnishtayiN/KelavsWG</string>
+    <string name="check_update_title">بررسی نسخه جدید</string>
+    <string name="check_update_subtitle">بررسی دستی آپدیت</string>
+    <string name="check_update_button">بررسی</string>
+    
+    <string name="security_privacy">امنیت و حریم خصوصی</string>
+    <string name="biometric_lock_title">قفل بیومتریک</string>
+    <string name="biometric_lock_subtitle">محافظت از برنامه با اثر انگشت/چهره</string>
+    <string name="no_logs_title">بدون لاگ</string>
+    <string name="no_logs_subtitle">برنامه هیچ اطلاعات حساسی ثبت نمی‌کند</string>
+    <string name="no_ads_title">بدون تبلیغات و آنالیتیکس</string>
+    <string name="no_ads_subtitle">حریم خصوصی کامل</string>
+    
+    <string name="about_section">درباره</string>
+    <string name="app_version_title">نسخه برنامه</string>
+    <string name="wireguard_engine_title">موتور WireGuard</string>
+    <string name="wireguard_engine_subtitle">بر پایه WireGuard Android رسمی</string>
+    <string name="license_title">مجوز</string>
+    <string name="license_subtitle">Apache 2.0 / GPLv2</string>
+    <string name="opensource_title">منبع باز</string>
+    <string name="opensource_subtitle">GitHub: AnishtayiN/KelavsWG</string>
+    
+    <!-- Update -->
+    <string name="update_available_title">نسخه جدید Kelavs VPN منتشر شده است</string>
+    <string name="update_download">دانلود آپدیت</string>
+    <string name="update_later">بعداً</string>
+    <string name="update_downloading">در حال دانلود…</string>
+    <string name="update_verifying">در حال بررسی فایل…</string>
+    <string name="update_ready">آماده برای نصب</string>
+    <string name="update_install">نصب</string>
+    <string name="update_error">خطای به‌روزرسانی</string>
+    <string name="update_checksum_error">فایل دانلود شده معتبر نیست (Checksum عدم تطابق)</string>
+    <string name="update_signature_error">امضای APK معتبر نیست</string>
+    <string name="update_install_blocked">نصب توسط اندروید مسدود شده است</string>
+    <string name="update_storage_full">فضای ذخیره‌سازی کافی نیست</string>
+    
+    <!-- Errors -->
+    <string name="error_invalid_url">لینک اشتراک نامعتبر</string>
+    <string name="error_unsupported_format">فرمت اشتراک پشتیبانی نمی‌شود</string>
+    <string name="error_no_valid_config">کانفیگ معتبر پیدا نشد</string>
+    <string name="error_subscription_expired">اشتراک منقضی شده است</string>
+    <string name="error_fetch_failed">دریافت اشتراک ناموفق بود</string>
+    <string name="error_server_unreachable">سرور در دسترس نیست</string>
+    <string name="error_dns">خطای DNS</string>
+    <string name="error_vpn_permission">مجوز VPN داده نشده است</string>
+    <string name="error_tunnel_failed">ساخت Tunnel ناموفق بود</string>
+    <string name="error_timeout">زمان اتصال تمام شد</string>
+    <string name="error_update_check">بررسی آپدیت ناموفق بود</string>
+    <string name="error_download_failed">دانلود APK ناموفق بود</string>
+    
+    <!-- Dialogs -->
+    <string name="dialog_ok">باشه</string>
+    <string name="dialog_cancel">انصراف</string>
+    <string name="dialog_yes">بله</string>
+    <string name="dialog_no">خیر</string>
+
+    <!-- App Restrictions (Enterprise) -->
+    <string name="app_restriction_subscription_url_title">لینک اشتراک پیش‌فرض</string>
+    <string name="app_restriction_subscription_url_desc">لینک اشتراک که به‌صورت خودکار در lần اول اجرا استفاده می‌شود</string>
+    <string name="app_restriction_auto_connect_title">اتصال خودکار</string>
+    <string name="app_restriction_auto_connect_desc">به‌صورت خودکار به VPN متصل شود هنگام اجرا</string>
+    <string name="app_restriction_allowed_networks_title">شبکه‌های مجاز</string>
+    <string name="app_restriction_allowed_networks_desc">لیست SSIDهای وای‌فای که VPN در آن‌ها فعال شود (جدا شده با کاما)</string>
+    <string name="app_restriction_block_non_vpn_title">مسدود کردن ترافیک غیر VPN</string>
+    <string name="app_restriction_block_non_vpn_desc">جلوگیری از نشت ترافیک هنگام قطع VPN</string>
+</resources>

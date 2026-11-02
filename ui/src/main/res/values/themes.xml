@@ -1,0 +1,71 @@
+<resources>
+    <!-- Base application theme -->
+    <style name="AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary brand color -->
+        <item name="colorPrimary">@color/kelavs_primary</item>
+        <item name="colorPrimaryVariant">@color/kelavs_primary_variant</item>
+        <item name="colorOnPrimary">@color/kelavs_on_primary</item>
+        
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/kelavs_secondary</item>
+        <item name="colorSecondaryVariant">@color/kelavs_secondary_variant</item>
+        <item name="colorOnSecondary">@color/kelavs_on_secondary</item>
+        
+        <!-- Error color -->
+        <item name="colorError">@color/kelavs_error</item>
+        <item name="colorOnError">@color/kelavs_on_error</item>
+        
+        <!-- Surface colors -->
+        <item name="colorSurface">@color/kelavs_surface</item>
+        <item name="colorOnSurface">@color/kelavs_on_surface</item>
+        
+        <!-- Background -->
+        <item name="android:colorBackground">@color/kelavs_background</item>
+        <item name="colorOnBackground">@color/kelavs_on_background</item>
+        
+        <!-- Status bar -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+        <item name="android:windowLightNavigationBar">true</item>
+        
+        <!-- RTL Support -->
+        <item name="android:layoutDirection">rtl</item>
+        <item name="android:textDirection">rtl</item>
+        
+        <!-- Font -->
+        <item name="android:fontFamily">@font/iran_sans</item>
+    </style>
+
+    <!-- No ActionBar theme for activities -->
+    <style name="AppTheme.NoActionBar" parent="AppTheme">
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    </style>
+
+    <!-- TV Theme -->
+    <style name="TvTheme" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/kelavs_primary</item>
+        <item name="colorPrimaryVariant">@color/kelavs_primary_variant</item>
+        <item name="colorOnPrimary">@color/kelavs_on_primary</item>
+        <item name="colorSecondary">@color/kelavs_secondary</item>
+        <item name="colorSecondaryVariant">@color/kelavs_secondary_variant</item>
+        <item name="colorOnSecondary">@color/kelavs_on_secondary</item>
+        <item name="colorError">@color/kelavs_error</item>
+        <item name="colorSurface">@color/kelavs_surface</item>
+        <item name="colorOnSurface">@color/kelavs_on_surface</item>
+    </style>
+
+    <!-- Transparent theme for tunnel toggle -->
+    <style name="NoBackgroundTheme" parent="AppTheme">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@null</item>
+    </style>
+
+    <!-- Splash Theme -->
+    <style name="SplashTheme" parent="AppTheme">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
+</resources>

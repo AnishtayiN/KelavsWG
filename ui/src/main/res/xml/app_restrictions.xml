@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<restrictions xmlns:android="http://schemas.android.com/apk/res/android">
+    <restriction
+        android:key="subscription_url"
+        android:title="@string/app_restriction_subscription_url_title"
+        android:description="@string/app_restriction_subscription_url_desc"
+        android:type="string" />
+    <restriction
+        android:key="auto_connect"
+        android:title="@string/app_restriction_auto_connect_title"
+        android:description="@string/app_restriction_auto_connect_desc"
+        android:type="bool"
+        android:defaultValue="false" />
+    <restriction
+        android:key="allowed_networks"
+        android:title="@string/app_restriction_allowed_networks_title"
+        android:description="@string/app_restriction_allowed_networks_desc"
+        android:type="string" />
+    <restriction
+        android:key="block_non_vpn_traffic"
+        android:title="@string/app_restriction_block_non_vpn_title"
+        android:description="@string/app_restriction_block_non_vpn_desc"
+        android:type="bool"
+        android:defaultValue="true" />
+</restrictions>
