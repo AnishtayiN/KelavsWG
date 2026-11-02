@@ -1,263 +1,164 @@
-<?xml version="1.0" encoding="utf-8"?><!--
-  ~ Copyright © 2017-2025 WireGuard LLC. All Rights Reserved.
-  ~ SPDX-License-Identifier: Apache-2.0
-  -->
 <resources>
-    <plurals name="delete_error">
-        <item quantity="one">Unable to delete %d tunnel: %s</item>
-        <item quantity="other">Unable to delete %d tunnels: %s</item>
-    </plurals>
-    <plurals name="delete_success">
-        <item quantity="one">Successfully deleted %d tunnel</item>
-        <item quantity="other">Successfully deleted %d tunnels</item>
-    </plurals>
-    <plurals name="delete_title">
-        <item quantity="one">%d tunnel selected</item>
-        <item quantity="other">%d tunnels selected</item>
-    </plurals>
-    <plurals name="import_partial_success">
-        <item quantity="one">Imported %1$d of %2$d tunnels</item>
-        <item quantity="other">Imported %1$d of %2$d tunnels</item>
-    </plurals>
-    <plurals name="import_total_success">
-        <item quantity="one">Imported %d tunnel</item>
-        <item quantity="other">Imported %d tunnels</item>
-    </plurals>
-    <plurals name="set_excluded_applications">
-        <item quantity="one">%d Excluded Application</item>
-        <item quantity="other">%d Excluded Applications</item>
-    </plurals>
-    <plurals name="set_included_applications">
-        <item quantity="one">%d Included Application</item>
-        <item quantity="other">%d Included Applications</item>
-    </plurals>
-    <plurals name="n_excluded_applications">
-        <item quantity="one">%d excluded</item>
-        <item quantity="other">%d excluded</item>
-    </plurals>
-    <plurals name="n_included_applications">
-        <item quantity="one">%d included</item>
-        <item quantity="other">%d included</item>
-    </plurals>
-    <string name="all_applications">All Applications</string>
-    <string name="exclude_from_tunnel">Exclude</string>
-    <string name="include_in_tunnel">Include only</string>
-    <plurals name="include_n_applications">
-        <item quantity="one">Include %d app</item>
-        <item quantity="other">Include %d apps</item>
-    </plurals>
-    <plurals name="exclude_n_applications">
-        <item quantity="one">Exclude %d app</item>
-        <item quantity="other">Exclude %d apps</item>
-    </plurals>
-    <plurals name="persistent_keepalive_seconds_unit">
-        <item quantity="one">every second</item>
-        <item quantity="other">every %d seconds</item>
-    </plurals>
-    <plurals name="persistent_keepalive_seconds_suffix">
-        <item quantity="one">second</item>
-        <item quantity="other">seconds</item>
-    </plurals>
-    <string name="use_all_applications">Use all apps</string>
-    <string name="add_peer">Add peer</string>
-    <string name="addresses">Addresses</string>
-    <string name="applications">Applications</string>
-    <string name="allow_remote_control_intents_summary_off">External apps may not toggle tunnels (recommended)</string>
-    <string name="allow_remote_control_intents_summary_on">External apps may toggle tunnels (advanced)</string>
-    <string name="allow_remote_control_intents_title">Allow remote control apps</string>
-    <string name="allowed_ips">Allowed IPs</string>
-    <string name="app_name" translatable="false">WireGuard</string>
-    <string name="bad_config_context">%1$s\'s %2$s</string>
-    <string name="bad_config_context_top_level">%s</string>
-    <string name="bad_config_error">%1$s in %2$s</string>
-    <string name="bad_config_explanation_pka">: Must be positive and no more than 65535</string>
-    <string name="bad_config_explanation_positive_number">: Must be positive</string>
-    <string name="bad_config_explanation_udp_port">: Must be a valid UDP port number</string>
-    <string name="bad_config_reason_invalid_key">Invalid key</string>
-    <string name="bad_config_reason_invalid_number">Invalid number</string>
-    <string name="bad_config_reason_invalid_value">Invalid value</string>
-    <string name="bad_config_reason_missing_attribute">Missing attribute</string>
-    <string name="bad_config_reason_missing_section">Missing section</string>
-    <string name="bad_config_reason_syntax_error">Syntax error</string>
-    <string name="bad_config_reason_unknown_attribute">Unknown attribute</string>
-    <string name="bad_config_reason_unknown_section">Unknown section</string>
-    <string name="bad_config_reason_value_out_of_range">Value out of range</string>
-    <string name="bad_extension_error">File must be .conf or .zip</string>
-    <string name="error_no_qr_found">QR code not found in image</string>
-    <string name="error_qr_checksum">QR code checksum verification failed</string>
-    <string name="cancel">Cancel</string>
-    <string name="config_delete_error">Cannot delete configuration file %s</string>
-    <string name="config_exists_error">Configuration for “%s” already exists</string>
-    <string name="config_file_exists_error">Configuration file “%s” already exists</string>
-    <string name="config_not_found_error">Configuration file “%s” not found</string>
-    <string name="config_rename_error">Cannot rename configuration file “%s”</string>
-    <string name="config_save_error">Cannot save configuration for “%1$s”: %2$s</string>
-    <string name="config_save_success">Successfully saved configuration for “%s”</string>
-    <string name="create_activity_title">Create WireGuard Tunnel</string>
-    <string name="create_bin_dir_error">Cannot create local binary directory</string>
-    <string name="create_downloads_file_error">Cannot create file in downloads directory</string>
-    <string name="create_empty">Create from scratch</string>
-    <string name="create_from_file">Import from file or archive</string>
-    <string name="create_from_qr_code">Scan from QR code</string>
-    <string name="create_output_dir_error">Cannot create output directory</string>
-    <string name="create_temp_dir_error">Cannot create local temporary directory</string>
-    <string name="create_tunnel">Create Tunnel</string>
-    <string name="copied_to_clipboard">%s copied to clipboard</string>
-    <string name="dark_theme_summary_off">Currently using light (day) theme</string>
-    <string name="dark_theme_summary_on">Currently using dark (night) theme</string>
-    <string name="dark_theme_title">Use dark theme</string>
-    <string name="delete">Delete</string>
-    <string name="tv_delete">Select tunnel to delete</string>
-    <string name="tv_select_a_storage_drive">Select a storage drive</string>
-    <string name="tv_no_file_picker">Please install a file management utility to browse files</string>
-    <string name="tv_add_tunnel_get_started">Add a tunnel to get started</string>
-    <string name="donate_title">♥ Donate to the WireGuard Project</string>
-    <string name="donate_summary">Every contribution helps</string>
-    <string name="donate_google_play_disappointment">Thank you for supporting the WireGuard Project!\n\nUnfortunately, due to Google\'s policies, we\'re not allowed to link to the part of the project webpage where you can make a donation. Hopefully you can figure this out!\n\nThanks again for your contribution.</string>
-    <string name="disable_config_export_title">Disable config exporting</string>
-    <string name="disable_config_export_description">Disabling config exporting makes private keys less accessible</string>
-    <string name="dns_servers">DNS servers</string>
-    <string name="dns_search_domains">Search domains</string>
-    <string name="edit">Edit</string>
-    <string name="endpoint">Endpoint</string>
-    <string name="error_down">Error bringing down tunnel: %s</string>
-    <string name="error_fetching_apps">Error fetching apps list: %s</string>
-    <string name="error_root">Please obtain root access and try again</string>
-    <string name="error_prepare">Error preparing tunnel: %s</string>
-    <string name="error_up">Error bringing up tunnel: %s</string>
-    <string name="exclude_private_ips">Exclude private IPs</string>
-    <string name="generate_new_private_key">Generate new private key</string>
-    <string name="generic_error">Unknown “%s” error</string>
-    <string name="hint_automatic">(auto)</string>
-    <string name="hint_generated">(generated)</string>
-    <string name="hint_optional">(optional)</string>
-    <string name="hint_optional_discouraged">(optional, not recommended)</string>
-    <string name="hint_random">(random)</string>
-    <string name="illegal_filename_error">Illegal file name “%s”</string>
-    <string name="import_error">Unable to import tunnel: %s</string>
-    <string name="import_from_qr_code">Import Tunnel from QR Code</string>
-    <string name="import_success">Imported “%s”</string>
-    <string name="interface_title">Interface</string>
-    <string name="key_contents_error">Bad characters in key</string>
-    <string name="key_length_error">Incorrect key length</string>
-    <string name="key_length_explanation_base64">: WireGuard base64 keys must be 44 characters (32 bytes)</string>
-    <string name="key_length_explanation_binary">: WireGuard keys must be 32 bytes</string>
-    <string name="key_length_explanation_hex">: WireGuard hex keys must be 64 characters (32 bytes)</string>
-    <string name="latest_handshake">Latest handshake</string>
-    <string name="latest_handshake_ago">%s ago</string>
-    <string name="listen_port">Listen port</string>
-    <string name="log_export_error">Unable to export log: %s</string>
-    <string name="log_export_subject">WireGuard Android Log File</string>
-    <string name="log_export_success">Saved to “%s”</string>
-    <string name="log_export_title">Export log file</string>
-    <string name="log_saver_activity_label">Save log</string>
-    <string name="log_viewer_pref_summary">Logs may assist with debugging</string>
-    <string name="log_viewer_pref_title">View application log</string>
-    <string name="log_viewer_title">Log</string>
-    <string name="logcat_error">Unable to run logcat: </string>
-    <string name="module_enabler_disabled_summary">The experimental kernel module can improve performance</string>
-    <string name="module_enabler_disabled_title">Enable kernel module backend</string>
-    <string name="module_enabler_enabled_summary">The slower userspace backend may improve stability</string>
-    <string name="module_enabler_enabled_title">Disable kernel module backend</string>
-    <string name="module_installer_error">Something went wrong. Please try again</string>
-    <string name="module_installer_initial">The experimental kernel module can improve performance</string>
-    <string name="module_installer_not_found">No modules are available for your device</string>
-    <string name="module_installer_title">Download and install kernel module</string>
-    <string name="module_installer_working">Downloading and installing…</string>
-    <string name="module_version_error">Unable to determine kernel module version</string>
-    <string name="mtu">MTU</string>
-    <string name="multiple_tunnels_summary_off">Turning on one tunnel will turn off others</string>
-    <string name="multiple_tunnels_summary_on">Multiple tunnels may be turned on simultaneously</string>
-    <string name="multiple_tunnels_title">Allow multiple simultaneous tunnels</string>
-    <string name="name">Name</string>
-    <string name="no_config_error">Trying to bring up a tunnel with no config</string>
-    <string name="no_configs_error">No configurations found</string>
-    <string name="no_tunnels_error">No tunnels exist</string>
-    <string name="parse_error_generic">string</string>
-    <string name="parse_error_inet_address">IP address</string>
-    <string name="parse_error_inet_endpoint">endpoint</string>
-    <string name="parse_error_inet_network">IP network</string>
-    <string name="parse_error_integer">number</string>
-    <string name="parse_error_reason">Cannot parse %1$s “%2$s”</string>
-    <string name="peer">Peer</string>
-    <string name="permission_description">control WireGuard tunnels, enabling and disabling tunnels at will, potentially misdirecting Internet traffic</string>
-    <string name="permission_label">control WireGuard tunnels</string>
-    <string name="persistent_keepalive">Persistent keepalive</string>
-    <string name="pre_shared_key">Pre-shared key</string>
-    <string name="pre_shared_key_enabled">enabled</string>
-    <string name="private_key">Private key</string>
-    <string name="public_key">Public key</string>
-    <string name="qr_code_hint">Tip: generate with `qrencode -t ansiutf8 &lt; tunnel.conf`.</string>
-    <string name="quick_settings_tile_add_title">Add tile to quick settings panel</string>
-    <string name="quick_settings_tile_add_summary">The shortcut tile toggles the most recent tunnel</string>
-    <string name="quick_settings_tile_add_failure">Unable to add shortcut tile: error %d</string>
-    <string name="quick_settings_tile_action">Toggle tunnel</string>
-    <string name="restore_on_boot_summary_off">Will not bring up enabled tunnels at boot</string>
-    <string name="restore_on_boot_summary_on">Will bring up enabled tunnels at boot</string>
-    <string name="restore_on_boot_title">Restore on boot</string>
-    <string name="save">Save</string>
-    <string name="select_all">Select all</string>
-    <string name="settings">Settings</string>
-    <string name="shell_exit_status_read_error">Shell cannot read exit status</string>
-    <string name="shell_marker_count_error">Shell expected 4 markers, received %d</string>
-    <string name="shell_start_error">Shell failed to start: %d</string>
-    <string name="success_application_will_restart">Success. The application will now restart…</string>
-    <string name="toggle_all">Toggle All</string>
-    <string name="toggle_error">Error toggling WireGuard tunnel: %s</string>
-    <string name="tools_installer_already">wg and wg-quick are already installed</string>
-    <string name="tools_installer_failure">Unable to install command-line tools (no root?)</string>
-    <string name="tools_installer_initial">Install optional tools for scripting</string>
-    <string name="tools_installer_initial_magisk">Install optional tools for scripting as Magisk module</string>
-    <string name="tools_installer_initial_system">Install optional tools for scripting into the system partition</string>
-    <string name="tools_installer_success_magisk">wg and wg-quick installed as a Magisk module (reboot required)</string>
-    <string name="tools_installer_success_system">wg and wg-quick installed into the system partition</string>
-    <string name="tools_installer_title">Install command line tools</string>
-    <string name="tools_installer_working">Installing wg and wg-quick</string>
-    <string name="tools_unavailable_error">Required tools unavailable</string>
-    <string name="transfer">Transfer</string>
-    <string name="transfer_bytes">%d B</string>
-    <string name="transfer_gibibytes">%.2f GiB</string>
-    <string name="transfer_kibibytes">%.2f KiB</string>
-    <string name="transfer_mibibytes">%.2f MiB</string>
-    <string name="transfer_rx_tx">rx: %1$s, tx: %2$s</string>
-    <string name="transfer_tibibytes">%.2f TiB</string>
-    <string name="tun_create_error">Unable to create tun device</string>
-    <string name="tunnel_config_error">Unable to configure tunnel (wg-quick returned %d)</string>
-    <string name="tunnel_create_error">Unable to create tunnel: %s</string>
-    <string name="tunnel_create_success">Successfully created tunnel “%s”</string>
-    <string name="tunnel_error_already_exists">Tunnel “%s” already exists</string>
-    <string name="tunnel_error_invalid_name">Invalid name</string>
-    <string name="tunnel_list_placeholder">Add a tunnel using the button below</string>
-    <string name="tunnel_name">Tunnel Name</string>
-    <string name="tunnel_on_error">Unable to turn tunnel on (wgTurnOn returned %d)</string>
-    <string name="tunnel_dns_failure">Unable to resolve DNS hostname: “%s”</string>
-    <string name="tunnel_rename_error">Unable to rename tunnel: %s</string>
-    <string name="tunnel_rename_success">Successfully renamed tunnel to “%s”</string>
-    <string name="type_name_go_userspace">Go userspace</string>
-    <string name="type_name_kernel_module">Kernel module</string>
-    <string name="unknown_error">Unknown error</string>
-    <string name="updater_avalable">An application update is available. Please update now.</string>
-    <string name="updater_action">Download &amp; Update</string>
-    <string name="updater_rechecking">Fetching update metadata…</string>
-    <string name="updater_download_progress">Downloading update: %1$s / %2$s (%3$.2f%%)</string>
-    <string name="updater_download_progress_nototal">Downloading update: %s</string>
-    <string name="updater_installing">Installing update…</string>
-    <string name="updater_failure">Update failure: %s. Will retry momentarily…</string>
-    <string name="updater_corrupt_title">Application Corrupt</string>
-    <string name="updater_corrupt_message">This application is corrupt. Please re-download the APK from the website linked below. After, uninstall this application, and reinstall it from the downloaded APK.</string>
-    <string name="updater_corrupt_navigate">Open Website</string>
-    <string name="version_summary">%1$s backend %2$s</string>
-    <string name="version_summary_checking">Checking %s backend version</string>
-    <string name="version_summary_unknown">Unknown %s version</string>
-    <string name="version_title">WireGuard for Android v%s</string>
-    <string name="vpn_not_authorized_error">VPN service not authorized by user</string>
-    <string name="vpn_start_error">Unable to start Android VPN service</string>
-    <string name="zip_export_error">Unable to export tunnels: %s</string>
-    <string name="zip_export_success">Saved to “%s”</string>
-    <string name="zip_export_summary">Zip file will be saved to downloads folder</string>
-    <string name="zip_export_title">Export tunnels to zip file</string>
-    <string name="biometric_prompt_zip_exporter_title">Authenticate to export tunnels</string>
-    <string name="biometric_prompt_private_key_title">Authenticate to view private key</string>
-    <string name="biometric_auth_error">Authentication failure</string>
-    <string name="biometric_auth_error_reason">Authentication failure: %s</string>
+    <string name="app_name">Kelavs VPN</string>
+    <string name="permission_label">کنترل تونل‌های Kelavs VPN</string>
+    <string name="permission_description">اجازه می‌دهد برنامه‌های دیگر تونل‌های VPN را مدیریت کنند</string>
+    
+    <!-- Onboarding -->
+    <string name="welcome_title">به Kelavs VPN خوش آمدید</string>
+    <string name="welcome_subtitle">برای شروع، لینک اشتراک خود را وارد کنید.</string>
+    <string name="subscription_link_hint">https://example.com/subscription</string>
+    <string name="fetch_subscription">دریافت و افزودن اشتراک</string>
+    <string name="subscription_help">راهنمای استفاده</string>
+    <string name="help_text_1">• لینک اشتراک را از ربات @Kelavs_bot دریافت کنید</string>
+    <string name="help_text_2">• اشتراک می‌تواند شامل چندین کانفیگ WireGuard باشد</string>
+    <string name="help_text_3">• برنامه به‌صورت خودکار بهترین سرور را انتخاب می‌کند</string>
+    <string name="help_text_4">• نیازی به وارد کردن فایل کانفیگ به‌صورت دستی نیست</string>
+    <string name="support_text">پشتیبانی و خرید اشتراک:</string>
+    <string name="support_button">پشتیبانی @Matinkelavs</string>
+    <string name="buy_button">خرید اشتراک @Kelavs_bot</string>
+    
+    <!-- Dashboard -->
+    <string name="connected">متصل است</string>
+    <string name="connecting">در حال اتصال…</string>
+    <string name="reconnecting">در حال اتصال مجدد…</string>
+    <string name="disconnected">متصل نیست</string>
+    <string name="connection_error">خطا در اتصال</string>
+    <string name="connect_button">اتصال</string>
+    <string name="disconnect_button">قطع اتصال</string>
+    <string name="cancel_button">لغو</string>
+    <string name="change_server_hint">برای تغییر سرور، روی کارت سرور بزنید</string>
+    <string name="troubleshooting">عیب‌یابی و لاگ اتصال</string>
+    
+    <!-- Server Info -->
+    <string name="server_latency">تأخیر</string>
+    <string name="server_connections">اتصالات</string>
+    <string name="server_success_rate">موفقیت</string>
+    <string name="server_endpoint">سرور</string>
+    
+    <!-- Statistics -->
+    <string name="stat_download">دریافتی</string>
+    <string name="stat_upload">ارسالی</string>
+    <string name="stat_duration">مدت اتصال</string>
+    
+    <!-- Servers -->
+    <string name="servers_title">مدیریت سرورها</string>
+    <string name="auto_selection">انتخاب خودکار</string>
+    <string name="auto_selection_info">برنامه بر اساس Handshake موفق، تأخیر و پایداری بهترین سرور را انتخاب می‌کند</string>
+    <string name="no_servers">هیچ سروری یافت نشد</string>
+    <string name="no_servers_hint">ابتدا اشتراک خود را وارد کنید</string>
+    <string name="server_enabled">فعال</string>
+    <string name="server_disabled">غیرفعال</string>
+    
+    <!-- Subscription -->
+    <string name="subscription_title">اشتراک</string>
+    <string name="subscription_active">اشتراک فعال</string>
+    <string name="subscription_invalid">اشتراک نامعتبر</string>
+    <string name="subscription_none">اشتراکی تنظیم نشده</string>
+    <string name="last_update">آخرین به‌روزرسانی موفق</string>
+    <string name="last_update_attempt">آخرین تلاش برای به‌روزرسانی</string>
+    <string name="config_count">تعداد کانفیگ‌های معتبر</string>
+    <string name="refresh_subscription">به‌روزرسانی اشتراک</string>
+    <string name="refreshing">در حال به‌روزرسانی…</string>
+    <string name="delete_subscription">حذف اشتراک</string>
+    <string name="auto_update_settings">تنظیمات به‌روزرسانی خودکار</string>
+    <string name="periodic_update">به‌روزرسانی دوره‌ای</string>
+    <string name="periodic_update_desc">اشتراک به‌صورت خودکار در پس‌زمینه به‌روزرسانی می‌شود</string>
+    <string name="keep_configs_on_error">حفظ کانفیگ‌ها در خطا</string>
+    <string name="keep_configs_on_error_desc">در صورت خطای موقت، کانفیگ‌های قبلی حفظ می‌شوند</string>
+    
+    <!-- Settings -->
+    <string name="settings_title">تنظیمات</string>
+    <string name="network_optimization">بهینه‌سازی شبکه</string>
+    <string name="mtu_title">MTU</string>
+    <string name="mtu_subtitle">حداکثر واحد انتقال (پیش‌فرض: خودکار)</string>
+    <string name="custom_dns_title">DNS سفارشی</string>
+    <string name="custom_dns_subtitle">استفاده از DNS اختصاصی به جای DNS کانفیگ</string>
+    <string name="ipv6_title">حالت IPv6</string>
+    <string name="ipv6_subtitle">فعال/غیرفعال کردن پشتیبانی IPv6</string>
+    <string name="split_tunneling_title">Split Tunneling</string>
+    <string name="split_tunneling_subtitle">مسیردهی انتخاب‌شده برنامه‌ها (به‌زودی)</string>
+    
+    <string name="connection_behavior">رفتار اتصال</string>
+    <string name="auto_reconnect_title">اتصال مجدد خودکار</string>
+    <string name="auto_reconnect_subtitle">تلاش مجدد خودکار در صورت قطع اتصال</string>
+    <string name="network_change_title">تغییر شبکه</string>
+    <string name="network_change_subtitle">بازیابی اتصال در هنگام تغییر وای‌فای/دیتا</string>
+    <string name="keepalive_title">Persistent Keepalive</string>
+    <string name="keepalive_subtitle">حفظ تنظیمات Keepalive ارائه‌دهنده</string>
+    
+    <string name="appearance">نمایش</string>
+    <string name="theme_title">تم</string>
+    <string name="theme_subtitle">روشن/تیره/سیستمی</string>
+    <string name="language_title">زبان</string>
+    <string name="language_subtitle">فارسی/انگلیسی</string>
+    
+    <string name="update_section">به‌روزرسانی</string>
+    <string name="auto_update_check_title">بررسی خودکار آپدیت</string>
+    <string name="auto_update_check_subtitle">بررسی نسخه جدید در GitHub Releases</string>
+    <string name="github_repo_title">مخزن GitHub</string>
+    <string name="github_repo_subtitle">AnishtayiN/KelavsWG</string>
+    <string name="check_update_title">بررسی نسخه جدید</string>
+    <string name="check_update_subtitle">بررسی دستی آپدیت</string>
+    <string name="check_update_button">بررسی</string>
+    
+    <string name="security_privacy">امنیت و حریم خصوصی</string>
+    <string name="biometric_lock_title">قفل بیومتریک</string>
+    <string name="biometric_lock_subtitle">محافظت از برنامه با اثر انگشت/چهره</string>
+    <string name="no_logs_title">بدون لاگ</string>
+    <string name="no_logs_subtitle">برنامه هیچ اطلاعات حساسی ثبت نمی‌کند</string>
+    <string name="no_ads_title">بدون تبلیغات و آنالیتیکس</string>
+    <string name="no_ads_subtitle">حریم خصوصی کامل</string>
+    
+    <string name="about_section">درباره</string>
+    <string name="app_version_title">نسخه برنامه</string>
+    <string name="wireguard_engine_title">موتور WireGuard</string>
+    <string name="wireguard_engine_subtitle">بر پایه WireGuard Android رسمی</string>
+    <string name="license_title">مجوز</string>
+    <string name="license_subtitle">Apache 2.0 / GPLv2</string>
+    <string name="opensource_title">منبع باز</string>
+    <string name="opensource_subtitle">GitHub: AnishtayiN/KelavsWG</string>
+    
+    <!-- Update -->
+    <string name="update_available_title">نسخه جدید Kelavs VPN منتشر شده است</string>
+    <string name="update_download">دانلود آپدیت</string>
+    <string name="update_later">بعداً</string>
+    <string name="update_downloading">در حال دانلود…</string>
+    <string name="update_verifying">در حال بررسی فایل…</string>
+    <string name="update_ready">آماده برای نصب</string>
+    <string name="update_install">نصب</string>
+    <string name="update_error">خطای به‌روزرسانی</string>
+    <string name="update_checksum_error">فایل دانلود شده معتبر نیست (Checksum عدم تطابق)</string>
+    <string name="update_signature_error">امضای APK معتبر نیست</string>
+    <string name="update_install_blocked">نصب توسط اندروید مسدود شده است</string>
+    <string name="update_storage_full">فضای ذخیره‌سازی کافی نیست</string>
+    
+    <!-- Errors -->
+    <string name="error_invalid_url">لینک اشتراک نامعتبر</string>
+    <string name="error_unsupported_format">فرمت اشتراک پشتیبانی نمی‌شود</string>
+    <string name="error_no_valid_config">کانفیگ معتبر پیدا نشد</string>
+    <string name="error_subscription_expired">اشتراک منقضی شده است</string>
+    <string name="error_fetch_failed">دریافت اشتراک ناموفق بود</string>
+    <string name="error_server_unreachable">سرور در دسترس نیست</string>
+    <string name="error_dns">خطای DNS</string>
+    <string name="error_vpn_permission">مجوز VPN داده نشده است</string>
+    <string name="error_tunnel_failed">ساخت Tunnel ناموفق بود</string>
+    <string name="error_timeout">زمان اتصال تمام شد</string>
+    <string name="error_update_check">بررسی آپدیت ناموفق بود</string>
+    <string name="error_download_failed">دانلود APK ناموفق بود</string>
+    
+    <!-- Dialogs -->
+    <string name="dialog_ok">باشه</string>
+    <string name="dialog_cancel">انصراف</string>
+    <string name="dialog_yes">بله</string>
+    <string name="dialog_no">خیر</string>
+
+    <!-- App Restrictions (Enterprise) -->
+    <string name="app_restriction_subscription_url_title">لینک اشتراک پیش‌فرض</string>
+    <string name="app_restriction_subscription_url_desc">لینک اشتراک که به‌صورت خودکار در lần اول اجرا استفاده می‌شود</string>
+    <string name="app_restriction_auto_connect_title">اتصال خودکار</string>
+    <string name="app_restriction_auto_connect_desc">به‌صورت خودکار به VPN متصل شود هنگام اجرا</string>
+    <string name="app_restriction_allowed_networks_title">شبکه‌های مجاز</string>
+    <string name="app_restriction_allowed_networks_desc">لیست SSIDهای وای‌فای که VPN در آن‌ها فعال شود (جدا شده با کاما)</string>
+    <string name="app_restriction_block_non_vpn_title">مسدود کردن ترافیک غیر VPN</string>
+    <string name="app_restriction_block_non_vpn_desc">جلوگیری از نشت ترافیک هنگام قطع VPN</string>
 </resources>

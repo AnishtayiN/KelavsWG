@@ -1,0 +1,251 @@
+name: Release Kelavs VPN
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'نسخه برنامه (مثال: 1.0.0)'
+        required: true
+        type: string
+      release_notes:
+        description: 'توضیحات نسخه (اختیاری)'
+        required: false
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  validate-version:
+    name: Validate Version
+    runs-on: ubuntu-latest
+    outputs:
+      version: ${{ steps.validate.outputs.version }}
+      version_code: ${{ steps.validate.outputs.version_code }}
+      tag_name: ${{ steps.validate.outputs.tag_name }}
+    steps:
+      - name: Validate version format
+        id: validate
+        run: |
+          VERSION="${{ github.event.inputs.version }}"
+          
+          # Check version format (semver)
+          if [[ ! $VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+(-[a-zA-Z0-9.-]+)?$ ]]; then
+            echo "::error::فرمت نسخه نامعتبر است. از فرمت SemVer استفاده کنید (مثال: 1.0.0)"
+            exit 1
+          fi
+          
+          # Check if tag already exists
+          if git ls-remote --tags origin | grep -q "refs/tags/v$VERSION$"; then
+            echo "::error::نسخه v$VERSION قبلاً منتشر شده است"
+            exit 1
+          fi
+          
+          # Calculate versionCode from versionName
+          # Major * 1000000 + Minor * 1000 + Patch
+          IFS='.' read -r major minor patch <<< "$VERSION"
+          # Remove any pre-release suffix from patch
+          patch=${patch%%-*}
+          VERSION_CODE=$((major * 1000000 + minor * 1000 + patch))
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "version_code=$VERSION_CODE" >> $GITHUB_OUTPUT
+          echo "tag_name=v$VERSION" >> $GITHUB_OUTPUT
+
+  build:
+    name: Build & Test
+    needs: validate-version
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          cache: 'gradle'
+
+      - name: Setup Android SDK
+        uses: android-actions/setup-android@v3
+        with:
+          api-level: 36
+          build-tools-version: '35.0.0'
+          ndk-version: '27.0.12077973'
+
+      - name: Decode Keystore
+        id: keystore
+        run: |
+          if [ -z "${{ secrets.KEYSTORE_BASE64 }}" ]; then
+            echo "::error::KEYSTORE_BASE64 secret is not set"
+            exit 1
+          fi
+          echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ${{ runner.temp }}/keystore.jks
+          echo "keystore_path=${{ runner.temp }}/keystore.jks" >> $GITHUB_OUTPUT
+
+      - name: Create gradle.properties
+        run: |
+          cat > gradle.properties << EOF
+          kelavsVersionCode=${{ needs.validate-version.outputs.version_code }}
+          kelavsVersionName=${{ needs.validate-version.outputs.version }}
+          kelavsPackageName=com.kelavs.vpn
+          
+          org.gradle.parallel=true
+          org.gradle.caching=true
+          org.gradle.jvmargs=-Xmx4g
+          
+          kapt.include.compile.classpath=false
+          
+          # Signing config
+          KEYSTORE_PATH=${{ steps.keystore.outputs.keystore_path }}
+          KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS=${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
+          EOF
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build Debug APK
+        run: ./gradlew :ui:assembleDebug --no-daemon
+
+      - name: Run Unit Tests
+        run: ./gradlew :core:subscription:test :core:update:test :core:network:test :core:storage:test --no-daemon
+
+      - name: Run Lint
+        run: ./gradlew :ui:lint --no-daemon
+
+      - name: Build Release APK
+        run: ./gradlew :ui:assembleRelease --no-daemon
+
+      - name: Verify APK
+        run: |
+          APK_PATH=$(find . -name "Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk" -type f | head -1)
+          if [ -z "$APK_PATH" ]; then
+            echo "::error::APK not found"
+            exit 1
+          fi
+          
+          # Check package name
+          aapt dump badging "$APK_PATH" | grep "package: name='com.kelavs.vpn'" || {
+            echo "::error::Package name mismatch"
+            exit 1
+          }
+          
+          # Check signing
+          apksigner verify --print-certs "$APK_PATH" || {
+            echo "::error::APK signature verification failed"
+            exit 1
+          }
+          
+          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
+
+      - name: Generate SHA-256
+        id: checksum
+        run: |
+          APK_PATH="${{ steps.verify.outputs.apk_path }}"
+          SHA256=$(sha256sum "$APK_PATH" | cut -d' ' -f1)
+          echo "$SHA256" > "${APK_PATH}.sha256"
+          echo "sha256=$SHA256" >> $GITHUB_OUTPUT
+          echo "checksum_path=${APK_PATH}.sha256" >> $GITHUB_OUTPUT
+
+      - name: Generate release.json
+        id: release_json
+        run: |
+          cat > release.json << EOF
+          {
+            "version": "${{ needs.validate-version.outputs.version }}",
+            "version_code": ${{ needs.validate-version.outputs.version_code }},
+            "package_name": "com.kelavs.vpn",
+            "min_sdk": 28,
+            "target_sdk": 36,
+            "sha256": "${{ steps.checksum.outputs.sha256 }}",
+            "apk_size": $(stat -c%s "${{ steps.verify.outputs.apk_path }}"),
+            "build_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "github_repo": "AnishtayiN/KelavsWG",
+            "release_notes": "${{ github.event.inputs.release_notes }}"
+          }
+          EOF
+          echo "release_json_path=release.json" >> $GITHUB_OUTPUT
+
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Kelavs-VPN-${{ needs.validate-version.outputs.version }}
+          path: |
+            ${{ steps.verify.outputs.apk_path }}
+            ${{ steps.checksum.outputs.checksum_path }}
+            ${{ steps.release_json.outputs.release_json_path }}
+          retention-days: 30
+
+  release:
+    name: Create GitHub Release
+    needs: [validate-version, build]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: Kelavs-VPN-${{ needs.validate-version.outputs.version }}
+          path: ./release
+
+      - name: Create Release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ needs.validate-version.outputs.tag_name }}
+          name: Kelavs VPN ${{ needs.validate-version.outputs.version }}
+          body: |
+            ## Kelavs VPN ${{ needs.validate-version.outputs.version }}
+            
+            ${{ github.event.inputs.release_notes || 'نسخه جدید Kelavs VPN منتشر شده است.' }}
+            
+            ### تغییرات
+            - به‌روزرسانی به آخرین نسخه WireGuard
+            - بهبودهای عملکرد و پایداری
+            - اصلاحات امنیتی
+            
+            ### فایل‌ها
+            - `Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk` - فایل نصب برنامه
+            - `Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk.sha256` - چک‌سام SHA-256
+            - `release.json` - متادیتای نسخه
+            
+            ### نصب
+            1. فایل APK را دانلود کنید
+            2. چک‌سام SHA-256 را بررسی کنید
+            3. برنامه را نصب کنید
+            
+            ### امضای برنامه
+            این نسخه با کلید رسمی Kelavs VPN امضا شده است.
+          files: |
+            ./release/Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk
+            ./release/Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk.sha256
+            ./release/release.json
+          draft: false
+          prerelease: false
+          generate_release_notes: false
+
+      - name: Verify Release
+        run: |
+          # Verify release was created
+          curl -s "https://api.github.com/repos/AnishtayiN/KelavsWG/releases/tags/${{ needs.validate-version.outputs.tag_name }}" | jq -r '.tag_name'
+          echo "Release created successfully!"
+
+  notify:
+    name: Notify Completion
+    needs: [build, release]
+    runs-on: ubuntu-latest
+    if: always()
+    steps:
+      - name: Build Status
+        run: |
+          if [ "${{ needs.build.result }}" == "success" ] && [ "${{ needs.release.result }}" == "success" ]; then
+            echo "✅ Build and Release completed successfully!"
+            echo "Version: ${{ needs.validate-version.outputs.version }}"
+            echo "Release: https://github.com/AnishtayiN/KelavsWG/releases/tag/${{ needs.validate-version.outputs.tag_name }}"
+          else
+            echo "❌ Build or Release failed"
+            exit 1
+          fi

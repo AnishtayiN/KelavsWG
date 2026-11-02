@@ -1,5 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?><!--
+<?xml version="1.0" encoding="utf-8"?>
+<!--
   ~ Copyright © 2017-2025 WireGuard LLC. All Rights Reserved.
+  ~ SPDX-License-Identifier: Apache-2.0
+  ~
+  ~ Kelavs VPN - Custom WireGuard fork for Iran
+  ~ Copyright © 2026 Kelavs VPN Team. All Rights Reserved.
   ~ SPDX-License-Identifier: Apache-2.0
   -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
@@ -10,6 +15,10 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_NETWORK_CONNECTION" />
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
     <uses-permission
         android:name="android.permission.SYSTEM_ALERT_WINDOW"
         android:minSdkVersion="34" />
@@ -39,7 +48,7 @@
         android:protectionLevel="dangerous" />
 
     <application
-        android:name=".Application"
+        android:name=".KelavsApplication"
         android:allowBackup="false"
         android:banner="@mipmap/banner"
         android:enableOnBackInvokedCallback="true"
@@ -47,19 +56,16 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme">
+        android:theme="@style/AppTheme"
+        android:networkSecurityConfig="@xml/network_security_config">
 
         <activity
-            android:name=".activity.TunnelToggleActivity"
-            android:excludeFromRecents="true"
-            android:theme="@style/NoBackgroundTheme" />
-
-        <activity
-            android:name=".activity.MainActivity"
-            android:exported="true">
+            android:name=".MainActivity"
+            android:exported="true"
+            android:label="@string/app_name"
+            android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
 
@@ -79,34 +85,19 @@
         </activity>
 
         <activity
-            android:name=".activity.SettingsActivity"
-            android:label="@string/settings"
-            android:parentActivityName=".activity.MainActivity" />
+            android:name=".activity.SubscriptionActivity"
+            android:label="@string/subscription"
+            android:parentActivityName=".MainActivity" />
 
         <activity
-            android:name=".activity.TunnelCreatorActivity"
-            android:label="@string/create_activity_title"
-            android:parentActivityName=".activity.MainActivity" />
+            android:name=".activity.SettingsActivity"
+            android:label="@string/settings"
+            android:parentActivityName=".MainActivity" />
 
         <activity
             android:name="com.journeyapps.barcodescanner.CaptureActivity"
             android:screenOrientation="fullSensor"
             tools:replace="screenOrientation" />
-
-        <activity
-            android:name=".activity.LogViewerActivity"
-            android:exported="false"
-            android:label="@string/log_viewer_title">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-            </intent-filter>
-        </activity>
-
-        <provider
-            android:name=".activity.LogViewerActivity$ExportedLogContentProvider"
-            android:authorities="${applicationId}.exported-log"
-            android:exported="false"
-            android:grantUriPermissions="true" />
 
         <receiver
             android:name=".BootShutdownReceiver"
@@ -118,7 +109,7 @@
         </receiver>
 
         <receiver
-            android:name=".updater.Updater$AppUpdatedReceiver"
+            android:name=".update.UpdateReceiver"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
@@ -130,30 +121,46 @@
             android:exported="true"
             android:permission="${applicationId}.permission.CONTROL_TUNNELS">
             <intent-filter>
-                <action android:name="com.wireguard.android.action.REFRESH_TUNNEL_STATES" />
-                <action android:name="com.wireguard.android.action.SET_TUNNEL_UP" />
-                <action android:name="com.wireguard.android.action.SET_TUNNEL_DOWN" />
+                <action android:name="com.kelavs.vpn.action.REFRESH_TUNNEL_STATES" />
+                <action android:name="com.kelavs.vpn.action.SET_TUNNEL_UP" />
+                <action android:name="com.kelavs.vpn.action.SET_TUNNEL_DOWN" />
             </intent-filter>
         </receiver>
+
+        <service
+            android:name=".KelavsVpnService"
+            android:exported="true"
+            android:permission="android.permission.BIND_VPN_SERVICE">
+            <intent-filter>
+                <action android:name="android.net.VpnService" />
+            </intent-filter>
+        </service>
 
         <service
             android:name=".QuickTileService"
             android:exported="true"
             android:icon="@drawable/ic_tile"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
-
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
-
             <meta-data
                 android:name="android.service.quicksettings.ACTIVE_TILE"
                 android:value="false" />
-
             <meta-data
                 android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
         </service>
+
+        <provider
+            android:name="androidx.core.content.FileProvider"
+            android:authorities="${applicationId}.fileprovider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/file_paths" />
+        </provider>
 
         <meta-data
             android:name="android.content.APP_RESTRICTIONS"
@@ -165,5 +172,7 @@
             <action android:name="android.intent.action.MAIN" />
             <category android:name="android.intent.category.LAUNCHER" />
         </intent>
+        <package android:name="org.telegram.messenger" />
+        <package android:name="org.telegram.messenger.web" />
     </queries>
 </manifest>

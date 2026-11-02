@@ -3,7 +3,7 @@
 import org.gradle.api.tasks.testing.logging.TestLogEvent
 import org.gradle.api.tasks.bundling.Zip
 
-val pkg: String = providers.gradleProperty("wireguardPackageName").get()
+val pkg: String = providers.gradleProperty("kelavsPackageName").get()
 
 plugins {
     alias(libs.plugins.android.library)
@@ -19,7 +19,7 @@ android {
     }
     namespace = "${pkg}.tunnel"
     defaultConfig {
-        minSdk = 24
+        minSdk = 28
     }
     externalNativeBuild {
         cmake {
@@ -78,14 +78,14 @@ publishing {
         register<MavenPublication>("release") {
             groupId = pkg
             artifactId = "tunnel"
-            version = providers.gradleProperty("wireguardVersionName").get()
+            version = providers.gradleProperty("kelavsVersionName").get()
             afterEvaluate {
                 from(components["release"])
             }
             pom {
-                name = "WireGuard Tunnel Library"
-                description = "Embeddable tunnel library for WireGuard for Android"
-                url = "https://www.wireguard.com/"
+                name = "Kelavs VPN Tunnel Library"
+                description = "Embeddable tunnel library for Kelavs VPN for Android"
+                url = "https://github.com/AnishtayiN/KelavsWG"
 
                 licenses {
                     license {
@@ -95,18 +95,18 @@ publishing {
                     }
                 }
                 scm {
-                    connection = "scm:git:https://git.zx2c4.com/wireguard-android"
-                    developerConnection = "scm:git:https://git.zx2c4.com/wireguard-android"
-                    url = "https://git.zx2c4.com/wireguard-android"
+                    connection = "scm:git:https://github.com/AnishtayiN/KelavsWG"
+                    developerConnection = "scm:git:https://github.com/AnishtayiN/KelavsWG"
+                    url = "https://github.com/AnishtayiN/KelavsWG"
                 }
                 developers {
                     organization {
-                        name = "WireGuard"
-                        url = "https://www.wireguard.com/"
+                        name = "Kelavs VPN"
+                        url = "https://github.com/AnishtayiN/KelavsWG"
                     }
                     developer {
-                        name = "WireGuard"
-                        email = "team@wireguard.com"
+                        name = "Kelavs VPN Team"
+                        email = "support@kelavs.vpn"
                     }
                 }
             }
