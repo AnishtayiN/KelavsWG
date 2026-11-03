@@ -93,6 +93,10 @@ jobs:
           kelavsVersionName=${{ needs.validate-version.outputs.version }}
           kelavsPackageName=com.kelavs.vpn
           
+          # Enable AndroidX (required for all AndroidX dependencies)
+          android.useAndroidX=true
+          android.enableJetifier=true
+          
           org.gradle.parallel=true
           org.gradle.caching=true
           org.gradle.jvmargs=-Xmx4g
