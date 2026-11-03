@@ -104,6 +104,7 @@ jobs:
           kapt.include.compile.classpath=false
           kapt.use.worker.api=true
           kapt.incremental.apt=false
+          kapt.jvmargs=-Xmx2g
           
           # Signing config
           KEYSTORE_PATH=${{ steps.keystore.outputs.keystore_path }}
