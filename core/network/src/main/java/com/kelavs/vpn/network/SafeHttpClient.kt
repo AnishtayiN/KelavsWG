@@ -4,14 +4,13 @@ import okhttp3.ConnectionPool
 import okhttp3.Dispatcher
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import okhttp3.tls.HeldCertificate
-import okhttp3.tls.TrustRootIndex
 import java.security.KeyStore
 import java.security.cert.X509Certificate
 import java.util.concurrent.TimeUnit
 import javax.net.ssl.SSLContext
 import javax.net.ssl.TrustManager
 import javax.net.ssl.X509TrustManager
+import okhttp3.OkHostnameVerifier
 
 /**
  * Creates a secure OkHttpClient with proper TLS configuration.
@@ -42,10 +41,7 @@ object SafeHttpClient {
             .retryOnConnectionFailure(false) // Don't retry on failure to avoid loops
             .addNetworkInterceptor(createLoggingInterceptor())
             .sslSocketFactory(createSecureSslSocketFactory(), createSystemTrustManager())
-            .hostnameVerifier { hostname, session -> 
-                // Strict hostname verification
-                okhttp3.internal.tls.OkHostnameVerifier.INSTANCE.verify(hostname, session)
-            }
+            .hostnameVerifier(OkHostnameVerifier.INSTANCE)
             .build()
     }
 
@@ -90,7 +86,8 @@ object SafeHttpClient {
                 // android.util.Log.d("KelavsVPN/Network", message)
             }
         }.apply {
-            level = if (BuildConfig.DEBUG) HttpLoggingInterceptor.Level.HEADERS else HttpLoggingInterceptor.Level.NONE
+            // Always disable body logging for security; enable HEADERS only in debug builds via manifest flag
+            level = HttpLoggingInterceptor.Level.NONE
         }
     }
 
@@ -107,9 +104,7 @@ object SafeHttpClient {
             .followSslRedirects(true)
             .retryOnConnectionFailure(false)
             .sslSocketFactory(createSecureSslSocketFactory(), createSystemTrustManager())
-            .hostnameVerifier { hostname, session ->
-                okhttp3.internal.tls.OkHostnameVerifier.INSTANCE.verify(hostname, session)
-            }
+            .hostnameVerifier(OkHostnameVerifier.INSTANCE)
             .build()
     }
 
@@ -134,9 +129,7 @@ object SafeHttpClient {
                 } ?: response
             }
             .sslSocketFactory(createSecureSslSocketFactory(), createSystemTrustManager())
-            .hostnameVerifier { hostname, session ->
-                okhttp3.internal.tls.OkHostnameVerifier.INSTANCE.verify(hostname, session)
-            }
+            .hostnameVerifier(OkHostnameVerifier.INSTANCE)
             .build()
     }
 }

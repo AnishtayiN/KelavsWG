@@ -8,10 +8,13 @@ import kotlinx.coroutines.withContext
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import okio.Buffer
 import java.io.IOException
 import java.net.URL
+import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
+import kotlin.ranges.inRange
 
 /**
  * Parses various subscription formats and extracts WireGuard configurations.
@@ -123,7 +126,7 @@ class SubscriptionParser(
         } catch (e: Exception) {
             // If we can't resolve, check hostname patterns
             host.startsWith("10.") ||
-            host.startsWith("172.") && host.substringAfter("172.").substringBefore(".").toIntOrNull()?.inRange(16, 31) == true ||
+            host.startsWith("172.") && host.substringAfter("172.").substringBefore(".").toIntOrNull()?.let { it in 16..31 } == true ||
             host.startsWith("192.168.") ||
             host.startsWith("169.254.") ||
             host.startsWith("fc") || host.startsWith("fd")
@@ -166,7 +169,7 @@ class SubscriptionParser(
             }
 
             val source = body.source()
-            val buffer = okio.Buffer()
+            val buffer = Buffer()
             var totalRead: Long = 0
             while (true) {
                 val read = source.read(buffer, 8192)
@@ -177,7 +180,7 @@ class SubscriptionParser(
                 }
             }
             
-            buffer.readUtf8()
+            buffer.readString(StandardCharsets.UTF_8)
         }
     }
 
