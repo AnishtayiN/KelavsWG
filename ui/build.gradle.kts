@@ -5,6 +5,7 @@ val pkg: String = providers.gradleProperty("kelavsPackageName").get()
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
     id("org.jetbrains.kotlin.kapt")
 }
@@ -28,8 +29,12 @@ android {
             useSupportLibrary = true
         }
     }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "2.0.20"
+    }
     kotlinOptions {
         jvmTarget = "17"
+        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
@@ -146,9 +151,6 @@ dependencies {
     testImplementation(libs.junit)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(libs.compose.ui.test.junit4)
 }
 
 tasks.withType<JavaCompile>().configureEach {
