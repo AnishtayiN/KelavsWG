@@ -34,7 +34,7 @@ android {
     }
     kotlinOptions {
         jvmTarget = "17"
-        freeCompilerArgs += "-Xopt-in=kotlin.RequiresOptIn"
+        
     }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
