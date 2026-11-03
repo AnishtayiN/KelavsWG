@@ -4,6 +4,10 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
+import com.kelavs.vpn.storage.entities.ConnectionHistoryEntity
+import com.kelavs.vpn.storage.entities.ServerConfigEntity
+import com.kelavs.vpn.storage.entities.SubscriptionEntity
+import com.kelavs.vpn.storage.entities.SubscriptionMetadataEntity
 import com.kelavs.vpn.subscription.SubscriptionConfig
 
 /**

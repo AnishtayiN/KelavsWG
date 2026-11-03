@@ -1,3 +1,6 @@
+#ifndef _WG_UAPI_WIREGUARD_H
+#define _WG_UAPI_WIREGUARD_H
+
 /* SPDX-License-Identifier: (GPL-2.0 WITH Linux-syscall-note) OR MIT */
 /*
  * Copyright (C) 2015-2026 Jason A. Donenfeld <Jason@zx2c4.com>. All Rights Reserved.
