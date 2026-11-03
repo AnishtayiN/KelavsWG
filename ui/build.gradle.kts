@@ -47,11 +47,12 @@ android {
             val storePassword = providers.gradleProperty("KEYSTORE_PASSWORD")
             val keyAlias = providers.gradleProperty("KEY_ALIAS")
             val keyPassword = providers.gradleProperty("KEY_PASSWORD")
+
             if (storeFile.isPresent && storePassword.isPresent && keyAlias.isPresent && keyPassword.isPresent) {
-                storeFile = file(storeFile.get())
-                storePassword = storePassword.get()
-                keyAlias = keyAlias.get()
-                keyPassword = keyPassword.get()
+                this.storeFile = file(storeFile.get())
+                this.storePassword = storePassword.get()
+                this.keyAlias = keyAlias.get()
+                this.keyPassword = keyPassword.get()
             }
         }
     }
