@@ -133,8 +133,8 @@ dependencies {
     kapt(libs.room.compiler)
     coreLibraryDesugaring(libs.desugarJdkLibs)
 
-    // Compose
-    implementation(libs.compose.bom)
+    // Compose - use platform() to import BOM versions
+    implementation(platform(libs.compose.bom))
     implementation(libs.compose.ui)
     implementation(libs.compose.ui.graphics)
     implementation(libs.compose.ui.tooling.preview)

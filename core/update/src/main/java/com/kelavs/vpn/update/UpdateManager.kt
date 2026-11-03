@@ -18,9 +18,11 @@ import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import java.io.File
+import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.security.MessageDigest
 import java.util.concurrent.atomic.AtomicBoolean
+import kotlin.math.max
 
 /**
  * Manages in-app updates from GitHub Releases.
@@ -304,8 +306,8 @@ class UpdateManager(
  * Update states.
  */
 sealed interface UpdateState {
-    data class Idle : UpdateState
-    data class Checking : UpdateState
+    object Idle : UpdateState
+    object Checking : UpdateState
     data class UpdateAvailable(
         val version: String,
         val releaseNotes: String,
@@ -315,7 +317,7 @@ sealed interface UpdateState {
         val checksum: String?
     ) : UpdateState
     data class Downloaded(val file: File) : UpdateState
-    data class UpToDate : UpdateState
+    object UpToDate : UpdateState
     data class Error(val message: String) : UpdateState
 }
 
