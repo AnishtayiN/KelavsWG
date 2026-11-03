@@ -135,9 +135,6 @@
  * If an error occurs, NLMSG_ERROR will reply containing an errno.
  */
 
-#ifndef _WG_UAPI_WIREGUARD_H
-#define _WG_UAPI_WIREGUARD_H
-
 #define WG_GENL_NAME "wireguard"
 #define WG_GENL_VERSION 1
 
