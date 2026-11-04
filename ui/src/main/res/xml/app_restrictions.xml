@@ -4,22 +4,22 @@
         android:key="subscription_url"
         android:title="@string/app_restriction_subscription_url_title"
         android:description="@string/app_restriction_subscription_url_desc"
-        android:type="string" />
+        android:restrictionType="string" />
     <restriction
         android:key="auto_connect"
         android:title="@string/app_restriction_auto_connect_title"
         android:description="@string/app_restriction_auto_connect_desc"
-        android:type="bool"
+        android:restrictionType="bool"
         android:defaultValue="false" />
     <restriction
         android:key="allowed_networks"
         android:title="@string/app_restriction_allowed_networks_title"
         android:description="@string/app_restriction_allowed_networks_desc"
-        android:type="string" />
+        android:restrictionType="string" />
     <restriction
         android:key="block_non_vpn_traffic"
         android:title="@string/app_restriction_block_non_vpn_title"
         android:description="@string/app_restriction_block_non_vpn_desc"
-        android:type="bool"
+        android:restrictionType="bool"
         android:defaultValue="true" />
 </restrictions>
