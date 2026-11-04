@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.okhttp.logging)
     implementation(libs.androidx.annotation)
     testImplementation(libs.junit)
+    testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.kotlinx.coroutines.test)
     testImplementation(libs.turbine)
     testImplementation(libs.mockk)

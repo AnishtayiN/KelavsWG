@@ -1,6 +1,6 @@
 package com.kelavs.vpn.subscription
 
-import android.util.Base64
+import java.util.Base64
 import com.kelavs.vpn.network.SafeHttpClient
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,7 +28,13 @@ import java.util.regex.Pattern
 class SubscriptionParser(
     private val httpClient: OkHttpClient = SafeHttpClient.create(),
     private val maxResponseSize: Long = 10 * 1024 * 1024, // 10 MB
-    private val timeoutSeconds: Int = 30
+    private val timeoutSeconds: Int = 30,
+    /**
+     * Allows loopback/private hosts. Kept false in production so that a subscription URL can
+     * never be used for SSRF against the user's local network; enabled only by unit tests that
+     * run against a local MockWebServer.
+     */
+    internal val allowPrivateHosts: Boolean = false
 ) {
 
     private val wireGuardConfigPattern = Pattern.compile(
@@ -103,7 +109,7 @@ class SubscriptionParser(
 
         // Prevent SSRF - block private/internal IPs
         val host = parsedUrl.host.lowercase()
-        if (isPrivateOrInternalHost(host)) {
+        if (!allowPrivateHosts && isPrivateOrInternalHost(host)) {
             throw SubscriptionParseException("دسترسی به آدرس‌های داخلی مجاز نیست")
         }
 
@@ -223,7 +229,7 @@ class SubscriptionParser(
     private fun parseBase64Content(base64: String, sourceUrl: String): List<SubscriptionConfig> {
         val cleaned = base64.replace("\\s".toRegex(), "")
         val decoded = try {
-            String(Base64.decode(cleaned, Base64.NO_WRAP), Charsets.UTF_8)
+            String(Base64.getDecoder().decode(cleaned), Charsets.UTF_8)
         } catch (e: Exception) {
             throw SubscriptionParseException("خطا در استخراج Base64: ${e.message}")
         }

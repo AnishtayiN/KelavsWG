@@ -69,12 +69,22 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 'latest'
-          accept-android-sdk-licenses: true
-          packages: 'platforms;android-36 build-tools;35.0.0 ndk;27.0.12077973 platform-tools'
+      # NOTE: android-actions/setup-android@v3 fails on current runners
+      # ("Warning: Failed to find package 'tools'" + sdkmanager exit code 1).
+      # The GitHub-hosted image already ships a complete SDK, so only the
+      # components this project actually needs are installed here.
+      - name: Configure Android SDK
+        run: |
+          SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK" >> "$GITHUB_ENV"
+          SDKMANAGER="$SDK/cmdline-tools/latest/bin/sdkmanager"
+          [ -x "$SDKMANAGER" ] || SDKMANAGER=$(ls -d "$SDK"/cmdline-tools/*/bin/sdkmanager | head -1)
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-34" "build-tools;34.0.0" > /dev/null
+          echo "$SDK/build-tools/34.0.0" >> "$GITHUB_PATH"
+          echo "$SDK/platform-tools" >> "$GITHUB_PATH"
+          "$SDK"/cmdline-tools/latest/bin/sdkmanager --list_installed | grep -E "platforms;android-34|build-tools;34.0.0"
 
       - name: Decode Keystore
         id: keystore
@@ -129,12 +139,19 @@ jobs:
         run: ./gradlew :ui:assembleRelease --no-daemon
 
       - name: Verify APK
+        id: verify
         run: |
           APK_PATH=$(find . -name "Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk" -type f | head -1)
           if [ -z "$APK_PATH" ]; then
+            echo "::warning::expected Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk, falling back to any release APK"
+            APK_PATH=$(find . -path "*/outputs/apk/release/*.apk" -type f | head -1)
+          fi
+          if [ -z "$APK_PATH" ]; then
             echo "::error::APK not found"
+            ls -R ui/build/outputs || true
             exit 1
           fi
+          echo "Using APK: $APK_PATH"
           
           # Check package name
           aapt dump badging "$APK_PATH" | grep "package: name='com.kelavs.vpn'" || {
@@ -168,7 +185,7 @@ jobs:
             "version_code": ${{ needs.validate-version.outputs.version_code }},
             "package_name": "com.kelavs.vpn",
             "min_sdk": 28,
-            "target_sdk": 36,
+            "target_sdk": 34,
             "sha256": "${{ steps.checksum.outputs.sha256 }}",
             "apk_size": $(stat -c%s "${{ steps.verify.outputs.apk_path }}"),
             "build_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",

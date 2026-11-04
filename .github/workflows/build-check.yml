@@ -55,6 +55,15 @@ jobs:
           unzip -o -q /tmp/aar/classes.jar -d /tmp/aar/cls
           javap -classpath /tmp/aar/cls com.kelavs.vpn.subscription_ui.SubscriptionScreenKt | head -5
 
+      - name: Run unit tests
+        run: ./gradlew :core:subscription:test :core:update:test :core:network:test :core:storage:test --no-daemon
+
+      - name: Run lint
+        run: ./gradlew :ui:lint --no-daemon
+
+      - name: R8 release shrink (no signing required)
+        run: ./gradlew :ui:minifyReleaseWithR8 --no-daemon
+
       - name: Assemble debug APK
         run: ./gradlew :ui:assembleDebug --stacktrace --no-daemon
 

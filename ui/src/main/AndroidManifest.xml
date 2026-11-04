@@ -39,6 +39,7 @@
     <application
         android:name=".KelavsApplication"
         android:allowBackup="false"
+        android:banner="@drawable/tv_logo_banner"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"

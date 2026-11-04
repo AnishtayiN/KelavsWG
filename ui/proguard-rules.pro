@@ -80,3 +80,38 @@
 
 # Don't optimize away null checks
 -optimizations !code/allocation/variable
+# ---------------------------------------------------------------------------
+# Kelavs additions for a reliable release build
+# ---------------------------------------------------------------------------
+
+# Keep source information so release crash reports stay readable.
+-keepattributes *Annotation*,InnerClasses,Signature,EnclosingMethod,SourceFile,LineNumberTable
+
+# Optional dependencies referenced (but not required) by OkHttp / Kotlin libs.
+# Without these the R8 step can abort with "Missing classes detected".
+-dontwarn org.conscrypt.**
+-dontwarn org.bouncycastle.**
+-dontwarn org.openjsse.**
+-dontwarn org.slf4j.**
+-dontwarn javax.annotation.**
+-dontwarn javax.naming.**
+-dontwarn com.google.errorprone.annotations.**
+-dontwarn org.codehaus.mojo.**
+-dontwarn org.jetbrains.annotations.**
+-dontwarn android.support.**
+
+# kotlinx.serialization: keep generated serializers ($serializer / Companion).
+-keepclasseswithmembers class * {
+    kotlinx.serialization.KSerializer serializer(...);
+}
+-keepclassmembers class * {
+    *** Companion;
+}
+-keepclasseswithmembers class * {
+    kotlinx.coroutines.internal.MainDispatcherFactory provider(...);
+}
+
+# Room: keep entity constructors used by reflection-based DAO adapter fallbacks.
+-keepclassmembers class com.kelavs.vpn.** {
+    <init>(...);
+}

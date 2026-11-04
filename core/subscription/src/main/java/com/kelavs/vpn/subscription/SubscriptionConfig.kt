@@ -82,11 +82,17 @@ data class SubscriptionConfig(
         return key.isNullOrBlank() || isValidBase64(key)
     }
 
+    /**
+     * WireGuard keys are 32 bytes encoded as 44-character standard Base64 (with padding).
+     * Uses java.util.Base64 (available since API 26, minSdk is 28) instead of
+     * android.util.Base64 so that validation is unit-testable on the JVM.
+     */
     private fun isValidBase64(str: String): Boolean {
+        if (str.length != 44) return false
         return try {
-            android.util.Base64.decode(str, android.util.Base64.NO_WRAP)
-            true
-        } catch (e: Exception) {
+            val decoded = java.util.Base64.getDecoder().decode(str)
+            decoded.size == 32
+        } catch (e: IllegalArgumentException) {
             false
         }
     }
