@@ -6,6 +6,7 @@ import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
+import com.kelavs.vpn.storage.entities.SubscriptionMetadataEntity
 
 @Dao
 interface SubscriptionMetadataDao {

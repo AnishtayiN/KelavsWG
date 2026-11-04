@@ -4,6 +4,7 @@
  */
 package com.kelavs.vpn.servers
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -123,8 +124,9 @@ fun ServersScreen(
 @Composable
 private fun ServerListItem(server: ServerRow, onClick: () -> Unit) {
     Card(
-        onClick = onClick,
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         colors = CardDefaults.cardColors(
             containerColor = if (server.isSelected) {
                 MaterialTheme.colorScheme.primaryContainer

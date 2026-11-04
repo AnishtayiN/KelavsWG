@@ -118,6 +118,7 @@ dependencies {
     implementation(libs.androidx.lifecycle.viewmodel.compose)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.datastore.preferences)
+    implementation(libs.androidx.security.crypto)
     implementation(libs.androidx.datastore.core)
     implementation(libs.google.material)
     implementation(libs.zxing.android.embedded)
