@@ -102,7 +102,7 @@ dependencies {
     implementation(project(":feature:onboarding"))
     implementation(project(":feature:dashboard"))
     implementation(project(":feature:servers"))
-    implementation(project(":feature:subscription"))
+    implementation(project(":feature:subscreen"))
     implementation(project(":feature:settings"))
 
     implementation(libs.androidx.activity.ktx)
