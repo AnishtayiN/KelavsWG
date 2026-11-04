@@ -182,17 +182,17 @@ data class ServerMetrics(
 ) {
 
     val successRate: Double
-        get() = if (handshakeSuccessCount + handshakeFailureCount == 0) 1.0
+        get() = if (handshakeSuccessCount + handshakeFailureCount == 0L) 1.0
         else handshakeSuccessCount.toDouble() / (handshakeSuccessCount + handshakeFailureCount)
 
     val avgLatencyMs: Long
-        get() = if (latencySamples == 0) 0 else totalLatencyMs / latencySamples
+        get() = if (latencySamples == 0L) 0L else totalLatencyMs / latencySamples
 
     val failureCount: Int = handshakeFailureCount.toInt()
 
     val isHealthy: Boolean
         get() = successRate > 0.7 && failureCount < 5 && 
-                (System.currentTimeMillis() - lastHandshakeTime < 300_000 || lastHandshakeTime == 0)
+                (System.currentTimeMillis() - lastHandshakeTime < 300_000L || lastHandshakeTime == 0L)
 
     val qualityScore: Double
         get() {
