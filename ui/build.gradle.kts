@@ -23,6 +23,7 @@ android {
     defaultConfig {
         applicationId = pkg
         minSdk = 28
+        targetSdk = 34
         versionCode = providers.gradleProperty("kelavsVersionCode").get().toInt()
         versionName = providers.gradleProperty("kelavsVersionName").get()
         buildConfigField("int", "MIN_SDK_VERSION", minSdk.toString())
