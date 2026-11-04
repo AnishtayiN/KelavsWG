@@ -34,7 +34,7 @@
         <item name="android:textDirection">rtl</item>
         
         <!-- Font -->
-        <item name="android:fontFamily">@font/iran_sans</item>
+        <item name="android:fontFamily">sans-serif</item>
     </style>
 
     <!-- No ActionBar theme for activities -->
