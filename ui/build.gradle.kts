@@ -92,19 +92,6 @@ android {
     }
 }
 
-/**
- * Deterministic output name, e.g. Kelavs-VPN-1.0.1.apk. The release workflow uploads and
- * verifies this exact file, so the name must not depend on the module name.
- */
-androidComponents {
-    onVariants(selector().withBuildType("release")) { variant ->
-        variant.outputs.forEach { output ->
-            val name = "Kelavs-VPN-${variant.versionName}.apk"
-            (output as? com.android.build.api.variant.impl.VariantOutputImpl)?.outputFileName?.set(name)
-        }
-    }
-}
-
 dependencies {
     implementation(project(":tunnel"))
     implementation(project(":core:subscription"))

@@ -138,6 +138,19 @@ jobs:
       - name: Build Release APK
         run: ./gradlew :ui:assembleRelease --no-daemon
 
+      # AGP already produces an APK; give it the stable public name that the
+      # release job, checksum and release.json all refer to.
+      - name: Name the release APK
+        run: |
+          SRC=$(find ui/build/outputs/apk/release -name "*.apk" ! -name "*unsigned*" | head -1)
+          if [ -z "$SRC" ]; then
+            echo "::error::no signed release APK produced"
+            ls -R ui/build/outputs/apk || true
+            exit 1
+          fi
+          cp "$SRC" "Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk"
+          echo "named: Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk (from $SRC)"
+
       - name: Verify APK
         id: verify
         run: |
