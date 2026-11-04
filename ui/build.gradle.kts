@@ -40,16 +40,25 @@ android {
     }
     signingConfigs {
         create("release") {
-            val storeFile = providers.gradleProperty("KEYSTORE_PATH")
-            val storePassword = providers.gradleProperty("KEYSTORE_PASSWORD")
-            val keyAlias = providers.gradleProperty("KEY_ALIAS")
-            val keyPassword = providers.gradleProperty("KEY_PASSWORD")
+            // Environment variables are preferred: gradle.properties escapes
+            // backslashes and treats ':' / '=' specially, which silently
+            // corrupts passwords that contain such characters.
+            fun secret(name: String): String? =
+                System.getenv(name)?.takeIf { it.isNotBlank() }
+                    ?: providers.gradleProperty(name).orNull?.takeIf { it.isNotBlank() }
 
-            if (storeFile.isPresent && storePassword.isPresent && keyAlias.isPresent && keyPassword.isPresent) {
-                this.storeFile = file(storeFile.get())
-                this.storePassword = storePassword.get()
-                this.keyAlias = keyAlias.get()
-                this.keyPassword = keyPassword.get()
+            val storePath = secret("KEYSTORE_PATH")
+            val storePasswordValue = secret("KEYSTORE_PASSWORD")
+            val aliasValue = secret("KEY_ALIAS")
+            val keyPasswordValue = secret("KEY_PASSWORD")
+
+            if (storePath != null && storePasswordValue != null &&
+                aliasValue != null && keyPasswordValue != null
+            ) {
+                this.storeFile = file(storePath)
+                this.storePassword = storePasswordValue
+                this.keyAlias = aliasValue
+                this.keyPassword = keyPasswordValue
             }
         }
     }

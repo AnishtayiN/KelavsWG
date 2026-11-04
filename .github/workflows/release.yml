@@ -118,21 +118,22 @@ jobs:
               -storepass "$STOREPASS" -keypass "$1" -file /tmp/probe.csr > /dev/null 2>&1
           }
 
+          echo "KEYSTORE_PATH=$KS" >> "$GITHUB_ENV"
+          echo "KEY_ALIAS=$ALIAS" >> "$GITHUB_ENV"
+          echo "KEYSTORE_PASSWORD=$STOREPASS" >> "$GITHUB_ENV"
+
           if probe "$KEYPASS"; then
             echo "KEY_PASSWORD is correct"
-            echo "KEY_PASSWORD_RESOLVED=$KEYPASS" >> "$GITHUB_ENV"
+            echo "KEY_PASSWORD=$KEYPASS" >> "$GITHUB_ENV"
           elif probe "$STOREPASS"; then
-            echo "::warning::KEY_PASSWORD is wrong, but it equals KEYSTORE_PASSWORD. Using that."
-            echo "KEY_PASSWORD_RESOLVED=$STOREPASS" >> "$GITHUB_ENV"
+            echo "::warning::KEY_PASSWORD is wrong, but KEYSTORE_PASSWORD works for the key; using it."
+            echo "KEY_PASSWORD=$STOREPASS" >> "$GITHUB_ENV"
           else
             echo "::error::Neither KEY_PASSWORD nor KEYSTORE_PASSWORD can decrypt key '$ALIAS'. Please re-upload KEY_PASSWORD (and KEY_ALIAS if the alias above is missing)."
             exit 1
           fi
 
       - name: Create gradle.properties
-        env:
-          KEYSTORE_PASSWORD_VALUE: ${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS_VALUE: ${{ secrets.KEY_ALIAS }}
         run: |
           cat > gradle.properties << EOF
           kelavsVersionCode=${{ needs.validate-version.outputs.version_code }}
@@ -152,16 +153,10 @@ jobs:
           kapt.incremental.apt=false
           kapt.jvmargs=-Xmx2g
           
-          # Signing config (paths only here; secrets are appended below so that
-          # characters such as $ or \ in a password cannot be mangled by the shell)
-          KEYSTORE_PATH=${{ steps.keystore.outputs.keystore_path }}
           EOF
-
-          {
-            printf 'KEYSTORE_PASSWORD=%s\n' "$KEYSTORE_PASSWORD_VALUE"
-            printf 'KEY_ALIAS=%s\n' "$KEY_ALIAS_VALUE"
-            printf 'KEY_PASSWORD=%s\n' "$KEY_PASSWORD_RESOLVED"
-          } >> gradle.properties
+          # Signing material is passed through environment variables, NOT
+          # gradle.properties: java.util.Properties escapes backslashes and
+          # splits on ':' / '=', which corrupts most real passwords.
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
