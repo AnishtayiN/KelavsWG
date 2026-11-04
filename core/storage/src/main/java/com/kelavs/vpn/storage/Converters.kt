@@ -1,6 +1,7 @@
 package com.kelavs.vpn.storage
 
 import androidx.room.TypeConverter
+import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 
 class Converters {
