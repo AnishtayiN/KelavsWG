@@ -1,49 +1,47 @@
+/*
+ * Copyright © 2026 Kelavs VPN Team. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.kelavs.vpn
 
 import android.app.Application
-import androidx.lifecycle.ProcessLifecycleOwner
-import com.kelavs.vpn.storage.SubscriptionDatabase
-import com.kelavs.vpn.update.UpdateManager
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import okhttp3.OkHttpClient
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.os.Build
+import com.kelavs.vpn.data.AppContainer
 
 /**
- * Main Application class for Kelavs VPN.
- * Initializes database, network clients, and global coroutine scope.
+ * Kelavs VPN application entry point.
+ *
+ * Keeps a single [AppContainer] alive for the whole process. A manual container is used instead
+ * of a DI framework so that the build stays simple and fast (no annotation processing for Hilt).
  */
 class KelavsApplication : Application() {
 
-    private val scope = CoroutineScope(Dispatchers.Main + SupervisorJob())
+    lateinit var container: AppContainer
+        private set
 
     override fun onCreate() {
         super.onCreate()
-        
-        // Initialize database
-        SubscriptionDatabase.getInstance(this)
-        
-        // Initialize ProcessLifecycleOwner for WorkManager
-        ProcessLifecycleOwner.init(this)
+        container = AppContainer(this)
+        createNotificationChannel()
     }
 
-    /**
-     * Global coroutine scope for application-level operations.
-     */
-    val applicationScope: CoroutineScope = scope
+    private fun createNotificationChannel() {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
+        val manager = getSystemService(NotificationManager::class.java) ?: return
+        val channel = NotificationChannel(
+            CHANNEL_VPN,
+            "وضعیت اتصال",
+            NotificationManager.IMPORTANCE_LOW
+        ).apply {
+            description = "نمایش وضعیت اتصال Kelavs VPN"
+            setShowBadge(false)
+        }
+        manager.createNotificationChannel(channel)
+    }
 
-    /**
-     * Creates a secure HTTP client for subscription fetching.
-     */
-    fun createSubscriptionHttpClient(): OkHttpClient = com.kelavs.vpn.network.SafeHttpClient.create()
-
-    /**
-     * Creates an HTTP client for update checking.
-     */
-    fun createUpdateHttpClient(): OkHttpClient = com.kelavs.vpn.network.SafeHttpClient.createUpdateClient()
-
-    /**
-     * Gets the UpdateManager instance.
-     */
-    fun getUpdateManager(): UpdateManager = UpdateManager.getInstance(this)
+    companion object {
+        const val CHANNEL_VPN = "kelavs_vpn_status"
+    }
 }

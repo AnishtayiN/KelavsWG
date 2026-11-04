@@ -1,457 +1,284 @@
+/*
+ * Copyright © 2026 Kelavs VPN Team. All Rights Reserved.
+ * SPDX-License-Identifier: Apache-2.0
+ */
 package com.kelavs.vpn.dashboard
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Text
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CloudDownload
+import androidx.compose.material.icons.filled.Dns
 import androidx.compose.material.icons.filled.PowerSettingsNew
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.SwapVert
-import androidx.compose.material.icons.filled.Wifi
-import androidx.compose.material.icons.filled.WifiOff
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.LayoutDirection
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import com.kelavs.vpn.vpn.TrafficStats
+import com.kelavs.vpn.vpn.TunnelState
 
+/**
+ * Main screen: connection toggle, current server and live traffic counters.
+ */
 @Composable
 fun DashboardScreen(
-    viewModel: DashboardViewModel,
-    onNavigateToServers: () -> Unit,
-    onNavigateToSubscription: () -> Unit,
-    onNavigateToSettings: () -> Unit,
-    modifier: Modifier = Modifier,
-    layoutDirection: LayoutDirection = LayoutDirection.Rtl
+    state: TunnelState,
+    stats: TrafficStats,
+    serverName: String?,
+    serverEndpoint: String?,
+    lastError: String?,
+    onToggleConnection: () -> Unit,
+    onOpenServers: () -> Unit,
+    onOpenSubscription: () -> Unit,
+    onOpenSettings: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
-    val context = LocalContext.current
-    val scope = remember { CoroutineScope(Dispatchers.Main) }
-    
-    val connectionState by viewModel.connectionState.collectAsStateWithLifecycle()
-    val selectedServer by viewModel.selectedServer.collectAsStateWithLifecycle()
-    val stats by viewModel.stats.collectAsStateWithLifecycle()
-    
     Column(
-        modifier = modifier.fillMaxSize(),
-        verticalArrangement = Arrangement.spacedBy(16.dp)
+        modifier = modifier
+            .fillMaxSize()
+            .verticalScroll(rememberScrollState())
+            .padding(horizontal = 20.dp, vertical = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        // Header with app name
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp),
+            modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = "Kelavs VPN",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
+                text = "کلاوس VPN",
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold
             )
-            
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                IconButton(onClick = { onNavigateToSubscription() }) {
-                    Icon(Icons.Default.Refresh, contentDescription = "به‌روزرسانی اشتراک")
+            Row {
+                IconButton(onClick = onOpenSubscription) {
+                    Icon(Icons.Filled.CloudDownload, contentDescription = "اشتراک")
                 }
-                IconButton(onClick = { onNavigateToSettings() }) {
-                    Icon(Icons.Default.Settings, contentDescription = "تنظیمات")
+                IconButton(onClick = onOpenSettings) {
+                    Icon(Icons.Filled.Settings, contentDescription = "تنظیمات")
                 }
             }
         }
-        
-        // Connection Status Card
-        ConnectionStatusCard(
-            state = connectionState,
-            onToggle = { viewModel.toggleConnection() },
-            onServerClick = { onNavigateToServers() }
+
+        Spacer(Modifier.height(8.dp))
+
+        ConnectionStatusCard(state = state, onToggleConnection = onToggleConnection)
+
+        Spacer(Modifier.height(16.dp))
+
+        ServerCard(
+            serverName = serverName,
+            serverEndpoint = serverEndpoint,
+            state = state,
+            onOpenServers = onOpenServers
         )
-        
-        // Server Info Card
-        if (selectedServer != null) {
-            ServerInfoCard(
-                server = selectedServer,
-                onChangeServer = { onNavigateToServers() }
-            )
-        }
-        
-        // Statistics Cards
+
+        Spacer(Modifier.height(16.dp))
+
         StatisticsSection(stats = stats)
-        
-        // Troubleshooting button
-        Card(
+
+        if (lastError != null) {
+            Spacer(Modifier.height(16.dp))
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.errorContainer)
+            ) {
+                Text(
+                    text = lastError,
+                    modifier = Modifier.padding(16.dp),
+                    color = MaterialTheme.colorScheme.onErrorContainer,
+                    textAlign = TextAlign.Center
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun ConnectionStatusCard(state: TunnelState, onToggleConnection: () -> Unit) {
+    val (label, color) = when (state) {
+        TunnelState.UP -> "متصل" to Color(0xFF2E7D32)
+        TunnelState.CONNECTING -> "در حال اتصال…" to Color(0xFFF9A825)
+        TunnelState.ERROR -> "خطا در اتصال" to MaterialTheme.colorScheme.error
+        TunnelState.DOWN -> "قطع" to MaterialTheme.colorScheme.onSurfaceVariant
+    }
+
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp),
-            onClick = { /* Navigate to troubleshooting */ }
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(16.dp),
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Settings,
-                        contentDescription = null,
-                        tint = androidx.compose.material3.MaterialTheme.colorScheme.primary
-                    )
-                    androidx.compose.foundation.layout.Spacer(modifier = Modifier.padding(start = 12.dp))
-                    Text(
-                        text = "عیب‌یابی و لاگ اتصال",
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
-                    )
-                }
-                Icon(
-                    imageVector = Icons.Default.SwapVert,
-                    contentDescription = null,
-                    tint = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
-    }
-}
-
-@Composable
-fun ConnectionStatusCard(
-    state: ConnectionState,
-    onToggle: () -> Unit,
-    onServerClick: () -> Unit
-) {
-    val (color, icon, text) = when (state) {
-        ConnectionState.Connected -> 
-            androidx.compose.material3.MaterialTheme.colorScheme.primary to Icons.Default.Wifi to "متصل است"
-        ConnectionState.Connecting -> 
-            androidx.compose.material3.MaterialTheme.colorScheme.secondary to Icons.Default.Refresh to "در حال اتصال..."
-        ConnectionState.Reconnecting -> 
-            androidx.compose.material3.MaterialTheme.colorScheme.tertiary to Icons.Default.SwapVert to "در حال اتصال مجدد..."
-        ConnectionState.Disconnected -> 
-            androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant to Icons.Default.WifiOff to "متصل نیست"
-        ConnectionState.Error(msg) -> 
-            androidx.compose.material3.MaterialTheme.colorScheme.error to Icons.Default.WifiOff to "خطا: $msg"
-    }
-    
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
-        colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = color.copy(alpha = 0.1f)
-        )
-    ) {
-        Column(
-            modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            // Status icon
             Box(
-                modifier = Modifier.size(80.dp),
+                modifier = Modifier
+                    .size(120.dp)
+                    .clip(CircleShape),
                 contentAlignment = Alignment.Center
             ) {
-                Icon(
-                    imageVector = icon,
-                    contentDescription = null,
-                    tint = color,
-                    modifier = Modifier.size(48.dp)
-                )
-                
-                // Pulse animation for connecting states
-                if (state == ConnectionState.Connecting || state == ConnectionState.Reconnecting) {
-                    androidx.compose.animation.core.AnimatedVisibility(
-                        visible = true,
-                        enter = androidx.compose.animation.core.fadeIn(),
-                        exit = androidx.compose.animation.core.fadeOut()
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(80.dp)
-                                .graphicsLayer { alpha = 0.3f }
-                                .background(color, RoundedCornerShape(40.dp))
-                        )
-                    }
+                Button(
+                    onClick = onToggleConnection,
+                    modifier = Modifier.size(120.dp),
+                    shape = CircleShape,
+                    enabled = !state.isBusy,
+                    colors = ButtonDefaults.buttonColors(containerColor = color)
+                ) {
+                    Icon(
+                        imageVector = Icons.Filled.PowerSettingsNew,
+                        contentDescription = label,
+                        modifier = Modifier.size(48.dp)
+                    )
                 }
             }
-            
-            // Status text
+            Spacer(Modifier.height(16.dp))
+            Text(text = label, style = MaterialTheme.typography.headlineSmall, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(4.dp))
             Text(
-                text = text,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                color = color,
-                textAlign = TextAlign.Center
+                text = if (state == TunnelState.UP) "برای قطع اتصال لمس کنید" else "برای اتصال لمس کنید",
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
-            
-            // Toggle button
-            Button(
-                onClick = onToggle,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .width(200.dp)
-                    .height(56.dp),
-                colors = androidx.compose.material3.ButtonDefaults.buttonColors(
-                    containerColor = when {
-                        state == ConnectionState.Connected -> androidx.compose.material3.MaterialTheme.colorScheme.error
-                        state.isConnecting -> androidx.compose.material3.MaterialTheme.colorScheme.secondary
-                        else -> androidx.compose.material3.MaterialTheme.colorScheme.primary
-                    }
-                )
-            ) {
-                Text(
-                    text = when {
-                        state == ConnectionState.Connected -> "قطع اتصال"
-                        state.isConnecting -> "لغو"
-                        else -> "اتصال"
-                    },
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = androidx.compose.material3.MaterialTheme.colorScheme.onPrimary
-                )
-            }
-            
-            // Change server hint
-            if (state == ConnectionState.Connected) {
-                Text(
-                    text = "برای تغییر سرور، روی کارت سرور بزنید",
-                    fontSize = 12.sp,
-                    color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
         }
     }
 }
 
 @Composable
-fun ServerInfoCard(
-    server: ServerConfigEntity,
-    onChangeServer: () -> Unit
+private fun ServerCard(
+    serverName: String?,
+    serverEndpoint: String?,
+    state: TunnelState,
+    onOpenServers: () -> Unit
 ) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp)
-            .fillMaxWidth(),
-        onClick = onChangeServer
-    ) {
-        Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+    Card(modifier = Modifier.fillMaxWidth()) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Column {
-                    Text(
-                        text = server.name,
-                        fontSize = 18.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface
-                    )
-                    Text(
-                        text = server.endpoint,
-                        fontSize = 14.sp,
-                        color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant
-                    )
-                }
-                
-                // Server status indicator
-                Box(
-                    modifier = Modifier.size(12.dp)
-                        .background(
-                            if (server.isEnabled) androidx.compose.material3.MaterialTheme.colorScheme.primary 
-                            else androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant,
-                            androidx.compose.foundation.shape.CircleShape
-                        )
+            Icon(Icons.Filled.Dns, contentDescription = null)
+            Spacer(Modifier.width(12.dp))
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = serverName ?: "سروری انتخاب نشده",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.SemiBold
+                )
+                Text(
+                    text = serverEndpoint ?: "برای افزودن سرور روی دکمه زیر بزنید",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
-            
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(24.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                StatItem(
-                    label = "تأخیر",
-                    value = if (server.avgLatencyMs > 0) "${server.avgLatencyMs} ms" else "—",
-                    icon = Icons.Default.Wifi
-                )
-                StatItem(
-                    label = "اتصالات",
-                    value = server.connectionCount.toString(),
-                    icon = Icons.Default.SwapVert
-                )
-                StatItem(
-                    label = "موفقیت",
-                    value = "${if (server.connectionCount > 0) (server.successCount * 100 / server.connectionCount) else 0}%",
-                    icon = Icons.Default.Check
-                )
+            IconButton(onClick = onOpenServers, enabled = state != TunnelState.CONNECTING) {
+                Icon(Icons.Filled.SwapVert, contentDescription = "تغییر سرور")
             }
         }
     }
 }
 
 @Composable
-fun StatItem(label: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector) {
-    Column(
-        modifier = Modifier.weight(1f),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(4.dp)
-    ) {
-        Icon(icon, contentDescription = null, tint = androidx.compose.material3.MaterialTheme.colorScheme.primary, modifier = Modifier.size(20.dp))
-        Text(text = value, fontSize = 16.sp, fontWeight = FontWeight.Bold, color = androidx.compose.material3.MaterialTheme.colorScheme.onSurface)
-        Text(text = label, fontSize = 12.sp, color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant)
-    }
-}
-
-@Composable
-fun StatisticsSection(stats: ConnectionStats) {
+private fun StatisticsSection(stats: TrafficStats) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         StatCard(
-            title = "دریافتی",
-            value = formatBytes(stats.bytesReceived),
-            icon = Icons.Default.CloudDownload,
-            color = androidx.compose.material3.MaterialTheme.colorScheme.primary
+            title = "دریافت",
+            value = formatBytes(stats.rxBytes),
+            modifier = Modifier.weight(1f)
         )
         StatCard(
-            title = "ارسالی",
-            value = formatBytes(stats.bytesSent),
-            icon = Icons.Default.CloudUpload,
-            color = androidx.compose.material3.MaterialTheme.colorScheme.secondary
+            title = "ارسال",
+            value = formatBytes(stats.txBytes),
+            modifier = Modifier.weight(1f)
         )
         StatCard(
             title = "مدت اتصال",
-            value = formatDuration(stats.durationMs),
-            icon = Icons.Default.Timer,
-            color = androidx.compose.material3.MaterialTheme.colorScheme.tertiary
+            value = formatDuration(stats.durationMillis),
+            modifier = Modifier.weight(1f)
         )
     }
 }
 
 @Composable
-fun StatCard(title: String, value: String, icon: androidx.compose.ui.graphics.vector.ImageVector, color: Color) {
-    Card(
-        modifier = Modifier
-            .weight(1f)
-            .height(100.dp),
-        colors = androidx.compose.material3.CardDefaults.cardColors(
-            containerColor = color.copy(alpha = 0.1f)
-        )
-    ) {
+private fun StatCard(title: String, value: String, modifier: Modifier = Modifier) {
+    Card(modifier = modifier) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Icon(icon, contentDescription = null, tint = color, modifier = Modifier.size(24.dp))
-            androidx.compose.foundation.layout.Spacer(modifier = Modifier.padding(top = 8.dp))
-            Text(text = value, fontSize = 18.sp, fontWeight = FontWeight.Bold, color = color)
-            Text(text = title, fontSize = 12.sp, color = androidx.compose.material3.MaterialTheme.colorScheme.onSurfaceVariant)
+            Text(text = value, style = MaterialTheme.typography.titleMedium, fontWeight = FontWeight.Bold)
+            Spacer(Modifier.height(4.dp))
+            Text(
+                text = title,
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
     }
 }
 
-private fun formatBytes(bytes: Long): String {
-    return when {
-        bytes < 1024 -> "${bytes} B"
-        bytes < 1024 * 1024 -> String.format("%.1f KB", bytes / 1024.0)
-        bytes < 1024 * 1024 * 1024 -> String.format("%.1f MB", bytes / (1024.0 * 1024))
-        else -> String.format("%.1f GB", bytes / (1024.0 * 1024 * 1024))
+fun formatBytes(bytes: Long): String {
+    if (bytes <= 0) return "0 B"
+    val units = listOf("B", "KB", "MB", "GB", "TB")
+    var value = bytes.toDouble()
+    var index = 0
+    while (value >= 1024 && index < units.lastIndex) {
+        value /= 1024
+        index++
+    }
+    return String.format("%.1f %s", value, units[index])
+}
+
+fun formatDuration(millis: Long): String {
+    if (millis <= 0) return "۰۰:۰۰"
+    val totalSeconds = millis / 1000
+    val hours = totalSeconds / 3600
+    val minutes = (totalSeconds % 3600) / 60
+    val seconds = totalSeconds % 60
+    return if (hours > 0) {
+        String.format("%d:%02d:%02d", hours, minutes, seconds)
+    } else {
+        String.format("%02d:%02d", minutes, seconds)
     }
 }
 
-private fun formatDuration(ms: Long): String {
-    val seconds = ms / 1000
-    val minutes = seconds / 60
-    val hours = minutes / 60
-    return when {
-        hours > 0 -> "${hours}س ${minutes % 60}د"
-        minutes > 0 -> "${minutes}د ${seconds % 60}ث"
-        else -> "${seconds}ث"
-    }
-}
+@Suppress("unused")
+private val refreshIconHint = Icons.Filled.Refresh
 
-// ViewModel and State classes would be defined here
-sealed interface ConnectionState {
-    data class Connected(val serverName: String) : ConnectionState
-    object Connecting : ConnectionState
-    object Reconnecting : ConnectionState
-    object Disconnected : ConnectionState
-    data class Error(val message: String) : ConnectionState
-    
-    val isConnecting: Boolean
-        get() = this is Connecting || this is Reconnecting
-}
-
-data class ConnectionStats(
-    val bytesReceived: Long = 0,
-    val bytesSent: Long = 0,
-    val durationMs: Long = 0
-)
-
-// Placeholder for ServerConfigEntity reference
-data class ServerConfigEntity(
-    val publicKey: String,
-    val name: String,
-    val endpoint: String,
-    val address: String,
-    val dns: String?,
-    val mtu: Int?,
-    val persistentKeepalive: Int?,
-    val allowedIPs: String,
-    val presharedKey: String?,
-    val sourceSubscriptionUrl: String,
-    val addedAt: Long,
-    val lastConnected: Long,
-    val connectionCount: Int,
-    val successCount: Int,
-    val failureCount: Int,
-    val avgLatencyMs: Long,
-    val lastHandshakeAt: Long,
-    val isEnabled: Boolean,
-    val isAutoSelected: Boolean
-)
-
-// ViewModel placeholder
-class DashboardViewModel {
-    val connectionState = kotlinx.coroutines.flow.MutableStateFlow<ConnectionState>(ConnectionState.Disconnected)
-    val selectedServer = kotlinx.coroutines.flow.MutableStateFlow<ServerConfigEntity?>(null)
-    val stats = kotlinx.coroutines.flow.MutableStateFlow<ConnectionStats>(ConnectionStats())
-    
-    fun toggleConnection() { /* Implementation */ }
-}
+@Suppress("unused")
+private val shadowText = 14.sp

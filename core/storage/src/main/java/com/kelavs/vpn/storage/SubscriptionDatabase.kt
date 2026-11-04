@@ -8,7 +8,6 @@ import com.kelavs.vpn.storage.entities.ConnectionHistoryEntity
 import com.kelavs.vpn.storage.entities.ServerConfigEntity
 import com.kelavs.vpn.storage.entities.SubscriptionEntity
 import com.kelavs.vpn.storage.entities.SubscriptionMetadataEntity
-import com.kelavs.vpn.subscription.SubscriptionConfig
 
 /**
  * Room database for storing subscription data, server configs, and connection history.

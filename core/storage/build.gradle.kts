@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 34
     namespace = "${pkg}.storage"
     defaultConfig {
         minSdk = 28

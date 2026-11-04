@@ -10,12 +10,14 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 34
     buildFeatures {
         buildConfig = true
-        dataBinding = true
         viewBinding = true
         compose = true
+    }
+    composeOptions {
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
     namespace = pkg
     defaultConfig {
@@ -96,6 +98,7 @@ dependencies {
     implementation(project(":core:update"))
     implementation(project(":core:network"))
     implementation(project(":core:storage"))
+    implementation(project(":core:vpn"))
     implementation(project(":feature:onboarding"))
     implementation(project(":feature:dashboard"))
     implementation(project(":feature:servers"))

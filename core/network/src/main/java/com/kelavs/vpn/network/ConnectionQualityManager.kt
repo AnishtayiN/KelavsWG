@@ -1,6 +1,6 @@
 package com.kelavs.vpn.network
 
-import com.kelavs.vpn.storage.ServerConfigEntity
+import com.kelavs.vpn.storage.entities.ServerConfigEntity
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel

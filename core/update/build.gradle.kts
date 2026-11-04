@@ -9,7 +9,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 34
     namespace = "${pkg}.update"
     defaultConfig {
         minSdk = 28
@@ -32,6 +32,7 @@ dependencies {
     implementation(libs.okhttp)
     implementation(libs.okhttp.logging)
     implementation(libs.androidx.annotation)
+    implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.datastore.preferences)
     implementation(libs.androidx.security.crypto)
     testImplementation(libs.junit)

@@ -8,7 +8,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 34
     namespace = "${pkg}.network"
     defaultConfig {
         minSdk = 28

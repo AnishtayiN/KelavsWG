@@ -10,7 +10,7 @@ plugins {
 }
 
 android {
-    compileSdk = 36
+    compileSdk = 34
     namespace = "${pkg}.settings"
     defaultConfig {
         minSdk = 28
@@ -32,6 +32,11 @@ android {
 }
 
 dependencies {
+    implementation(platform(libs.compose.bom))
+    implementation(libs.compose.ui)
+    implementation(libs.compose.ui.graphics)
+    implementation(libs.compose.runtime)
+    implementation(libs.compose.ui.tooling.preview)
     implementation(project(":core:subscription"))
     implementation(project(":core:update"))
     implementation(project(":core:storage"))

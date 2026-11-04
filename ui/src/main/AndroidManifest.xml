@@ -3,7 +3,7 @@
   ~ Copyright © 2017-2025 WireGuard LLC. All Rights Reserved.
   ~ SPDX-License-Identifier: Apache-2.0
   ~
-  ~ Kelavs VPN - Custom WireGuard fork for Iran
+  ~ Kelavs VPN - WireGuard-based client optimised for Iran
   ~ Copyright © 2026 Kelavs VPN Team. All Rights Reserved.
   ~ SPDX-License-Identifier: Apache-2.0
   -->
@@ -11,17 +11,12 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:installLocation="internalOnly">
 
-    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
-    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_NETWORK_CONNECTION" />
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
-    <uses-permission
-        android:name="android.permission.SYSTEM_ALERT_WINDOW"
-        android:minSdkVersion="34" />
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         android:maxSdkVersion="28"
@@ -33,44 +28,35 @@
     <uses-feature
         android:name="android.software.leanback"
         android:required="false" />
-    <uses-feature
-        android:name="android.hardware.camera.any"
-        android:required="false" />
-    <uses-feature
-        android:name="android.hardware.camera"
-        android:required="false" />
 
     <permission
         android:name="${applicationId}.permission.CONTROL_TUNNELS"
         android:description="@string/permission_description"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/permission_label"
-        android:protectionLevel="dangerous" />
+        android:protectionLevel="signature" />
 
     <application
         android:name=".KelavsApplication"
         android:allowBackup="false"
-        android:banner="@mipmap/banner"
         android:enableOnBackInvokedCallback="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
+        android:usesCleartextTraffic="false"
         android:networkSecurityConfig="@xml/network_security_config">
 
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:label="@string/app_name"
+            android:launchMode="singleTask"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-
-            <intent-filter>
-                <action android:name="android.service.quicksettings.action.QS_TILE_PREFERENCES" />
             </intent-filter>
         </activity>
 
@@ -84,51 +70,22 @@
             </intent-filter>
         </activity>
 
-        <activity
-            android:name=".activity.SubscriptionActivity"
-            android:label="@string/subscription"
-            android:parentActivityName=".MainActivity" />
-
-        <activity
-            android:name=".activity.SettingsActivity"
-            android:label="@string/settings"
-            android:parentActivityName=".MainActivity" />
-
-        <activity
-            android:name="com.journeyapps.barcodescanner.CaptureActivity"
-            android:screenOrientation="fullSensor"
-            tools:replace="screenOrientation" />
-
         <receiver
             android:name=".BootShutdownReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
-            </intent-filter>
-        </receiver>
-
-        <receiver
-            android:name=".update.UpdateReceiver"
-            android:exported="true">
-            <intent-filter>
+                <action android:name="android.intent.action.ACTION_SHUTDOWN" />
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
             </intent-filter>
         </receiver>
 
-        <receiver
-            android:name=".model.TunnelManager$IntentReceiver"
-            android:exported="true"
-            android:permission="${applicationId}.permission.CONTROL_TUNNELS">
-            <intent-filter>
-                <action android:name="com.kelavs.vpn.action.REFRESH_TUNNEL_STATES" />
-                <action android:name="com.kelavs.vpn.action.SET_TUNNEL_UP" />
-                <action android:name="com.kelavs.vpn.action.SET_TUNNEL_DOWN" />
-            </intent-filter>
-        </receiver>
-
+        <!--
+          WireGuard's userspace VpnService. It creates the TUN device and hands it to
+          wireguard-go; Kelavs drives it through GoBackend#setState.
+        -->
         <service
-            android:name=".KelavsVpnService"
+            android:name="com.wireguard.android.backend.GoBackend$VpnService"
             android:exported="true"
             android:permission="android.permission.BIND_VPN_SERVICE">
             <intent-filter>
@@ -140,13 +97,14 @@
             android:name=".QuickTileService"
             android:exported="true"
             android:icon="@drawable/ic_tile"
+            android:label="@string/app_name"
             android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
             <intent-filter>
                 <action android:name="android.service.quicksettings.action.QS_TILE" />
             </intent-filter>
             <meta-data
                 android:name="android.service.quicksettings.ACTIVE_TILE"
-                android:value="false" />
+                android:value="true" />
             <meta-data
                 android:name="android.service.quicksettings.TOGGLEABLE_TILE"
                 android:value="true" />
@@ -168,10 +126,6 @@
     </application>
 
     <queries>
-        <intent>
-            <action android:name="android.intent.action.MAIN" />
-            <category android:name="android.intent.category.LAUNCHER" />
-        </intent>
         <package android:name="org.telegram.messenger" />
         <package android:name="org.telegram.messenger.web" />
     </queries>
