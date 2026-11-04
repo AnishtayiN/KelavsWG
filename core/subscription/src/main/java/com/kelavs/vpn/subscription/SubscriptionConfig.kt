@@ -73,8 +73,13 @@ data class SubscriptionConfig(
                peerEndpoint.isNotBlank() &&
                isValidBase64(privateKey) &&
                isValidBase64(peerPublicKey) &&
-               (peerPresharedKey == null || peerPresharedKey!.isBlank() || isValidBase64(peerPresharedKey!)) &&
+               isPresharedKeyValid() &&
                isValidEndpoint(peerEndpoint)
+    }
+
+    private fun isPresharedKeyValid(): Boolean {
+        val key = peerPresharedKey
+        return key.isNullOrBlank() || isValidBase64(key)
     }
 
     private fun isValidBase64(str: String): Boolean {

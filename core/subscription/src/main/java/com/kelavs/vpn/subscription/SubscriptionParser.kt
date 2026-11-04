@@ -14,7 +14,6 @@ import java.net.URL
 import java.nio.charset.StandardCharsets
 import java.util.concurrent.TimeUnit
 import java.util.regex.Pattern
-import kotlin.ranges.inRange
 
 /**
  * Parses various subscription formats and extracts WireGuard configurations.
@@ -224,7 +223,7 @@ class SubscriptionParser(
     private fun parseBase64Content(base64: String, sourceUrl: String): List<SubscriptionConfig> {
         val cleaned = base64.replace("\\s".toRegex(), "")
         val decoded = try {
-            String(Base64.decode(cleaned, Base64.NO_WRAP), "UTF-8")
+            String(Base64.decode(cleaned, Base64.NO_WRAP), Charsets.UTF_8)
         } catch (e: Exception) {
             throw SubscriptionParseException("خطا در استخراج Base64: ${e.message}")
         }

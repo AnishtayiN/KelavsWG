@@ -189,7 +189,7 @@ class UpdateManager(
                     downloaded = 0,
                     total = 0,
                     percentage = 0f,
-                    status = DownloadStatus.Error(e.message ?: "خطای دانلود")
+                    status = DownloadStatus.Error
                 )
                 _updateState.value = UpdateState.Error(e.message ?: "خطای دانلود")
             } finally {
@@ -250,7 +250,8 @@ class UpdateManager(
         val request = Request.Builder().url(url).build()
         return httpClient.newCall(request).execute().use { response ->
             if (!response.isSuccessful) throw UpdateException("Checksum fetch failed: ${response.code}")
-            response.body?.string()?.trim()?.split(" ")?[0] ?: throw UpdateException("Invalid checksum format")
+            response.body?.string()?.trim()?.split(" ")?.firstOrNull()?.takeIf { it.isNotBlank() }
+                ?: throw UpdateException("Invalid checksum format")
         }
     }
 
@@ -285,9 +286,9 @@ class UpdateManager(
         // Verify APK signature matches expected certificate
         // In production, compare with known certificate fingerprint
         // For now, just verify it's a valid signed APK
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             val source = android.content.pm.PackageManager.PackageInfoFlags.of(
-                android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES
+                android.content.pm.PackageManager.GET_SIGNING_CERTIFICATES.toLong()
             )
             val pkgInfo = context.packageManager.getPackageArchiveInfo(file.absolutePath, source)
             if (pkgInfo == null || pkgInfo.signingInfo?.signingCertificateHistory?.isEmpty() != false) {
