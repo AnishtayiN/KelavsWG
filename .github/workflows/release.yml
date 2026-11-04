@@ -96,7 +96,43 @@ jobs:
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ${{ runner.temp }}/keystore.jks
           echo "keystore_path=${{ runner.temp }}/keystore.jks" >> $GITHUB_OUTPUT
 
+      # The previous run failed in :ui:packageRelease with
+      # "Get Key failed: Given final block not properly padded", which means the
+      # keystore opened fine but KEY_PASSWORD could not decrypt the private key.
+      # Diagnose it here instead of 3 minutes into the build.
+      - name: Validate signing material
+        run: |
+          KS="${{ steps.keystore.outputs.keystore_path }}"
+          ALIAS="${{ secrets.KEY_ALIAS }}"
+          STOREPASS="${{ secrets.KEYSTORE_PASSWORD }}"
+          KEYPASS="${{ secrets.KEY_PASSWORD }}"
+
+          echo "Aliases in keystore:"
+          keytool -list -keystore "$KS" -storepass "$STOREPASS" -alias "$ALIAS" 2>/dev/null \
+            || echo "(alias '$ALIAS' not found)"
+
+          # Probe which password actually decrypts the private key.
+          probe() {
+            rm -f /tmp/probe.csr
+            keytool -certreq -alias "$ALIAS" -keystore "$KS" \
+              -storepass "$STOREPASS" -keypass "$1" -file /tmp/probe.csr > /dev/null 2>&1
+          }
+
+          if probe "$KEYPASS"; then
+            echo "KEY_PASSWORD is correct"
+            echo "KEY_PASSWORD_RESOLVED=$KEYPASS" >> "$GITHUB_ENV"
+          elif probe "$STOREPASS"; then
+            echo "::warning::KEY_PASSWORD is wrong, but it equals KEYSTORE_PASSWORD. Using that."
+            echo "KEY_PASSWORD_RESOLVED=$STOREPASS" >> "$GITHUB_ENV"
+          else
+            echo "::error::Neither KEY_PASSWORD nor KEYSTORE_PASSWORD can decrypt key '$ALIAS'. Please re-upload KEY_PASSWORD (and KEY_ALIAS if the alias above is missing)."
+            exit 1
+          fi
+
       - name: Create gradle.properties
+        env:
+          KEYSTORE_PASSWORD_VALUE: ${{ secrets.KEYSTORE_PASSWORD }}
+          KEY_ALIAS_VALUE: ${{ secrets.KEY_ALIAS }}
         run: |
           cat > gradle.properties << EOF
           kelavsVersionCode=${{ needs.validate-version.outputs.version_code }}
@@ -116,12 +152,16 @@ jobs:
           kapt.incremental.apt=false
           kapt.jvmargs=-Xmx2g
           
-          # Signing config
+          # Signing config (paths only here; secrets are appended below so that
+          # characters such as $ or \ in a password cannot be mangled by the shell)
           KEYSTORE_PATH=${{ steps.keystore.outputs.keystore_path }}
-          KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS=${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
           EOF
+
+          {
+            printf 'KEYSTORE_PASSWORD=%s\n' "$KEYSTORE_PASSWORD_VALUE"
+            printf 'KEY_ALIAS=%s\n' "$KEY_ALIAS_VALUE"
+            printf 'KEY_PASSWORD=%s\n' "$KEY_PASSWORD_RESOLVED"
+          } >> gradle.properties
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
