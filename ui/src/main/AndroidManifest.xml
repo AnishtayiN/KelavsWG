@@ -80,18 +80,7 @@
             </intent-filter>
         </receiver>
 
-        <!--
-          WireGuard's userspace VpnService. It creates the TUN device and hands it to
-          wireguard-go; Kelavs drives it through GoBackend#setState.
-        -->
-        <service
-            android:name="com.wireguard.android.backend.GoBackend$VpnService"
-            android:exported="true"
-            android:permission="android.permission.BIND_VPN_SERVICE">
-            <intent-filter>
-                <action android:name="android.net.VpnService" />
-            </intent-filter>
-        </service>
+        <!-- GoBackend$VpnService is declared by the :tunnel library manifest. -->
 
         <service
             android:name=".QuickTileService"
