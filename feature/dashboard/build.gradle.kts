@@ -5,7 +5,6 @@ val pkg: String = providers.gradleProperty("kelavsPackageName").get()
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
     alias(libs.plugins.kotlin.serialization)
 }
 
@@ -16,7 +15,7 @@ android {
         minSdk = 28
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.6.1"
+        kotlinCompilerExtensionVersion = "1.5.14"
     }
     kotlinOptions {
         jvmTarget = "17"
