@@ -1,0 +1,75 @@
+name: Build verification
+
+# Build-only check: no signing, no release, no secrets.
+# Equivalent of running locally:
+#   ./gradlew :ui:assembleDebug --stacktrace
+on:
+  workflow_dispatch:
+
+jobs:
+  assemble-debug:
+    name: assembleDebug
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup JDK 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Accept Android SDK licenses
+        run: |
+          echo "ANDROID_HOME=${ANDROID_HOME:-/usr/local/lib/android/sdk}" >> $GITHUB_ENV
+          yes | ${ANDROID_HOME:-/usr/local/lib/android/sdk}/cmdline-tools/latest/bin/sdkmanager --licenses > /dev/null 2>&1 || true
+
+      - name: Create gradle.properties values
+        run: |
+          cat > gradle.properties <<'EOF'
+          kelavsVersionCode=1000000
+          kelavsVersionName=1.0.0
+          kelavsPackageName=com.kelavs.vpn
+          android.useAndroidX=true
+          kapt.include.compile.classpath=false
+          kapt.use.worker.api=true
+          org.gradle.jvmargs=-Xmx4g
+          EOF
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: List projects (sanity)
+        run: ./gradlew projects --no-daemon | grep -i "subscreen\|subscription" || true
+
+      - name: Build feature module AAR
+        run: ./gradlew :feature:subscreen:assembleDebug --stacktrace --no-daemon
+
+      - name: Prove SubscriptionScreen is inside the AAR
+        run: |
+          AAR=$(find feature/subscription/build/outputs/aar -name "*.aar" | head -1)
+          echo "AAR: $AAR"
+          unzip -l "$AAR"
+          mkdir -p /tmp/aar && unzip -o -q "$AAR" classes.jar -d /tmp/aar
+          unzip -l /tmp/aar/classes.jar | grep subscription_ui
+          unzip -o -q /tmp/aar/classes.jar -d /tmp/aar/cls
+          javap -classpath /tmp/aar/cls com.kelavs.vpn.subscription_ui.SubscriptionScreenKt | head -5
+
+      - name: Run unit tests
+        run: ./gradlew :core:subscription:test :core:update:test :core:network:test :core:storage:test --no-daemon
+
+      - name: Run lint
+        run: ./gradlew :ui:lint --no-daemon
+
+      - name: R8 release shrink (no signing required)
+        run: ./gradlew :ui:minifyReleaseWithR8 --no-daemon
+
+      - name: Assemble debug APK
+        run: ./gradlew :ui:assembleDebug --stacktrace --no-daemon
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: kelavs-debug-apk
+          path: ui/build/outputs/apk/debug/*.apk
+          if-no-files-found: error

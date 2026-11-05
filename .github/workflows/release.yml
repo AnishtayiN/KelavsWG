@@ -69,12 +69,22 @@ jobs:
           java-version: '17'
           cache: 'gradle'
 
-      - name: Setup Android SDK
-        uses: android-actions/setup-android@v3
-        with:
-          cmdline-tools-version: 'latest'
-          accept-android-sdk-licenses: true
-          packages: 'platforms;android-36 build-tools;35.0.0 ndk;27.0.12077973 platform-tools'
+      # NOTE: android-actions/setup-android@v3 fails on current runners
+      # ("Warning: Failed to find package 'tools'" + sdkmanager exit code 1).
+      # The GitHub-hosted image already ships a complete SDK, so only the
+      # components this project actually needs are installed here.
+      - name: Configure Android SDK
+        run: |
+          SDK="${ANDROID_HOME:-/usr/local/lib/android/sdk}"
+          echo "ANDROID_HOME=$SDK" >> "$GITHUB_ENV"
+          echo "ANDROID_SDK_ROOT=$SDK" >> "$GITHUB_ENV"
+          SDKMANAGER="$SDK/cmdline-tools/latest/bin/sdkmanager"
+          [ -x "$SDKMANAGER" ] || SDKMANAGER=$(ls -d "$SDK"/cmdline-tools/*/bin/sdkmanager | head -1)
+          yes | "$SDKMANAGER" --licenses > /dev/null 2>&1 || true
+          "$SDKMANAGER" "platform-tools" "platforms;android-34" "build-tools;34.0.0" > /dev/null
+          echo "$SDK/build-tools/34.0.0" >> "$GITHUB_PATH"
+          echo "$SDK/platform-tools" >> "$GITHUB_PATH"
+          "$SDK"/cmdline-tools/latest/bin/sdkmanager --list_installed | grep -E "platforms;android-34|build-tools;34.0.0"
 
       - name: Decode Keystore
         id: keystore
@@ -85,6 +95,54 @@ jobs:
           fi
           echo "${{ secrets.KEYSTORE_BASE64 }}" | base64 -d > ${{ runner.temp }}/keystore.jks
           echo "keystore_path=${{ runner.temp }}/keystore.jks" >> $GITHUB_OUTPUT
+
+      # The previous run failed in :ui:packageRelease with
+      # "Get Key failed: Given final block not properly padded", which means the
+      # keystore opened fine but KEY_PASSWORD could not decrypt the private key.
+      # Diagnose it here instead of 3 minutes into the build.
+      - name: Validate signing material
+        run: |
+          KS="${{ steps.keystore.outputs.keystore_path }}"
+          ALIAS="${{ secrets.KEY_ALIAS }}"
+          STOREPASS="${{ secrets.KEYSTORE_PASSWORD }}"
+          KEYPASS="${{ secrets.KEY_PASSWORD }}"
+
+          echo "Aliases in keystore:"
+          keytool -list -keystore "$KS" -storepass "$STOREPASS" -alias "$ALIAS" 2>/dev/null \
+            || echo "(alias '$ALIAS' not found)"
+
+          TYPE=$(keytool -list -keystore "$KS" -storepass "$STOREPASS" 2>/dev/null \
+            | awk -F': ' '/Keystore type/{print $2; exit}')
+          echo "Keystore type: ${TYPE:-unknown}"
+
+          # Probe which password actually decrypts the private key.
+          probe() {
+            rm -f /tmp/probe.csr
+            keytool -certreq -alias "$ALIAS" -keystore "$KS" \
+              -storepass "$STOREPASS" -keypass "$1" -file /tmp/probe.csr > /dev/null 2>&1
+          }
+
+          echo "KEYSTORE_PATH=$KS" >> "$GITHUB_ENV"
+          echo "KEY_ALIAS=$ALIAS" >> "$GITHUB_ENV"
+          echo "KEYSTORE_PASSWORD=$STOREPASS" >> "$GITHUB_ENV"
+
+          # PKCS12 (the default since JDK 9) encrypts the private key with the
+          # store passphrase; keytool silently ignores -keypass for it, but the
+          # Android packaging step passes that value to KeyStore.getKey() and
+          # fails with "Given final block not properly padded".
+          if [ "$TYPE" = "PKCS12" ]; then
+            echo "PKCS12 keystore: using KEYSTORE_PASSWORD for the private key"
+            echo "KEY_PASSWORD=$STOREPASS" >> "$GITHUB_ENV"
+          elif probe "$KEYPASS"; then
+            echo "KEY_PASSWORD is correct"
+            echo "KEY_PASSWORD=$KEYPASS" >> "$GITHUB_ENV"
+          elif probe "$STOREPASS"; then
+            echo "::warning::KEY_PASSWORD is wrong, but KEYSTORE_PASSWORD works for the key; using it."
+            echo "KEY_PASSWORD=$STOREPASS" >> "$GITHUB_ENV"
+          else
+            echo "::error::Neither KEY_PASSWORD nor KEYSTORE_PASSWORD can decrypt key '$ALIAS'. Please re-upload KEY_PASSWORD (and KEY_ALIAS if the alias above is missing)."
+            exit 1
+          fi
 
       - name: Create gradle.properties
         run: |
@@ -106,12 +164,10 @@ jobs:
           kapt.incremental.apt=false
           kapt.jvmargs=-Xmx2g
           
-          # Signing config
-          KEYSTORE_PATH=${{ steps.keystore.outputs.keystore_path }}
-          KEYSTORE_PASSWORD=${{ secrets.KEYSTORE_PASSWORD }}
-          KEY_ALIAS=${{ secrets.KEY_ALIAS }}
-          KEY_PASSWORD=${{ secrets.KEY_PASSWORD }}
           EOF
+          # Signing material is passed through environment variables, NOT
+          # gradle.properties: java.util.Properties escapes backslashes and
+          # splits on ':' / '=', which corrupts most real passwords.
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -128,13 +184,33 @@ jobs:
       - name: Build Release APK
         run: ./gradlew :ui:assembleRelease --no-daemon
 
+      # AGP already produces an APK; give it the stable public name that the
+      # release job, checksum and release.json all refer to.
+      - name: Name the release APK
+        run: |
+          SRC=$(find ui/build/outputs/apk/release -name "*.apk" ! -name "*unsigned*" | head -1)
+          if [ -z "$SRC" ]; then
+            echo "::error::no signed release APK produced"
+            ls -R ui/build/outputs/apk || true
+            exit 1
+          fi
+          cp "$SRC" "Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk"
+          echo "named: Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk (from $SRC)"
+
       - name: Verify APK
+        id: verify
         run: |
           APK_PATH=$(find . -name "Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk" -type f | head -1)
           if [ -z "$APK_PATH" ]; then
+            echo "::warning::expected Kelavs-VPN-${{ needs.validate-version.outputs.version }}.apk, falling back to any release APK"
+            APK_PATH=$(find . -path "*/outputs/apk/release/*.apk" -type f | head -1)
+          fi
+          if [ -z "$APK_PATH" ]; then
             echo "::error::APK not found"
+            ls -R ui/build/outputs || true
             exit 1
           fi
+          echo "Using APK: $APK_PATH"
           
           # Check package name
           aapt dump badging "$APK_PATH" | grep "package: name='com.kelavs.vpn'" || {
@@ -168,7 +244,7 @@ jobs:
             "version_code": ${{ needs.validate-version.outputs.version_code }},
             "package_name": "com.kelavs.vpn",
             "min_sdk": 28,
-            "target_sdk": 36,
+            "target_sdk": 34,
             "sha256": "${{ steps.checksum.outputs.sha256 }}",
             "apk_size": $(stat -c%s "${{ steps.verify.outputs.apk_path }}"),
             "build_time": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",

@@ -118,16 +118,29 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         _uiState.value = _uiState.value.copy(selectedServer = server)
     }
 
-    fun importSubscription(url: String) {
-        val normalized = url.trim()
+    fun importSubscription(input: String) {
+        val normalized = input.trim()
         if (normalized.isEmpty()) {
             setError("لطفاً لینک اشتراک را وارد کنید")
             return
         }
+
+        // The field also accepts pasted content: a full .conf file, a base64 blob or a
+        // wg:// / wireguard:// link. That keeps the app usable when a provider only offers
+        // a single configuration file instead of a subscription URL.
+        val isRemote = normalized.startsWith("http://", true) || normalized.startsWith("https://", true)
+
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isImporting = true, error = null)
-            parser.parseSubscription(normalized)
-                .onSuccess { result -> persistSubscription(normalized, result) }
+            val outcome = if (isRemote) {
+                parser.parseSubscription(normalized)
+            } else {
+                parser.parseText(normalized)
+            }
+            outcome
+                .onSuccess { result ->
+                    persistSubscription(if (isRemote) normalized else PASTED_SOURCE, result)
+                }
                 .onFailure { error ->
                     Log.e(TAG, "Subscription import failed", error)
                     _uiState.value = _uiState.value.copy(
@@ -140,6 +153,10 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
 
     fun refreshSubscription() {
         val url = _uiState.value.subscriptionUrl ?: return
+        if (url == PASTED_SOURCE) {
+            setError("این سرورها دستی وارد شده‌اند؛ برای بروزرسانی لینک یا متن تازه را وارد کنید")
+            return
+        }
         importSubscription(url)
     }
 
@@ -166,7 +183,9 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         container.serverDao.insertAll(configs.map { it.toEntity(url) })
         configCache = configs.associateBy { it.peerPublicKey }
 
-        settings.subscriptionUrl = url
+        // A pasted configuration has no source URL to refresh from, so it must not be
+        // stored as one (the background worker would keep failing on it).
+        settings.subscriptionUrl = url.takeIf { it != PASTED_SOURCE }
         settings.setOnboardingDone(true)
 
         _uiState.value = _uiState.value.copy(
@@ -423,15 +442,23 @@ class MainViewModel(application: Application) : AndroidViewModel(application) {
         is UpdateState.Error -> message
     }
 
-    private fun Throwable.toPersianMessage(): String = when {
-        message?.contains("timeout", ignoreCase = true) == true -> "زمان اتصال به سرور اشتراک به پایان رسید"
-        message?.contains("host", ignoreCase = true) == true -> "آدرس اشتراک معتبر نیست"
-        message?.contains("certificate", ignoreCase = true) == true -> "گواهی امنیتی سرور معتبر نیست"
-        else -> "دریافت اشتراک ناموفق بود: ${message ?: "خطای ناشناخته"}"
+    private fun Throwable.toPersianMessage(): String {
+        val raw = message ?: return "دریافت اشتراک ناموفق بود: خطای ناشناخته"
+        // Messages produced by SubscriptionParser are already Persian and actionable;
+        // prefixing them again produced the confusing "… ناموفق بود: هیچ کانفیگی …" pair.
+        if (this is com.kelavs.vpn.subscription.SubscriptionParseException) return raw
+        return when {
+            raw.contains("timeout", ignoreCase = true) -> "زمان اتصال به سرور اشتراک به پایان رسید"
+            raw.contains("host", ignoreCase = true) -> "آدرس اشتراک معتبر نیست"
+            raw.contains("certificate", ignoreCase = true) -> "گواهی امنیتی سرور معتبر نیست"
+            raw.contains("Unable to resolve", ignoreCase = true) -> "آدرس سرور اشتراک پیدا نشد (DNS)"
+            else -> "دریافت اشتراک ناموفق بود: $raw"
+        }
     }
 
     private companion object {
         const val TAG = "KelavsVPN/ViewModel"
+        const val PASTED_SOURCE = "manual://pasted-config"
         const val STATS_INTERVAL_MS = 1_000L
     }
 }

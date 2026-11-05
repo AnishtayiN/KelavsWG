@@ -71,29 +71,60 @@ data class SubscriptionConfig(
                peerPublicKey.isNotBlank() &&
                peerAllowedIPs.isNotBlank() &&
                peerEndpoint.isNotBlank() &&
-               isValidBase64(privateKey) &&
-               isValidBase64(peerPublicKey) &&
+               isValidKey(privateKey) &&
+               isValidKey(peerPublicKey) &&
                isPresharedKeyValid() &&
                isValidEndpoint(peerEndpoint)
     }
 
     private fun isPresharedKeyValid(): Boolean {
         val key = peerPresharedKey
-        return key.isNullOrBlank() || isValidBase64(key)
+        return key.isNullOrBlank() || isValidKey(key)
     }
 
-    private fun isValidBase64(str: String): Boolean {
+    /**
+     * WireGuard keys are 32 bytes in Base64. Providers emit them with padding (44 chars),
+     * without padding (43 chars) or with the URL-safe alphabet, so all three are accepted.
+     */
+    fun isValidKey(str: String): Boolean {
+        val trimmed = str.trim()
+        if (trimmed.length !in 42..44) return false
+        val normalized = trimmed.replace('-', '+').replace('_', '/')
+        val padded = when (normalized.length % 4) {
+            0 -> normalized
+            2 -> "$normalized=="
+            3 -> "$normalized="
+            else -> return false
+        }
         return try {
-            android.util.Base64.decode(str, android.util.Base64.NO_WRAP)
-            true
-        } catch (e: Exception) {
+            java.util.Base64.getDecoder().decode(padded).size == 32
+        } catch (e: IllegalArgumentException) {
             false
         }
     }
 
-    private fun isValidEndpoint(endpoint: String): Boolean {
-        // Basic endpoint validation: host:port
-        val parts = endpoint.split(":")
-        return parts.size == 2 && parts[0].isNotBlank() && parts[1].toIntOrNull() != null
+    /**
+     * Accepts `host:port` and `[ipv6]:port`. IPv6 endpoints used to be rejected because a
+     * naive split(':') produced more than two parts.
+     */
+    fun isValidEndpoint(endpoint: String): Boolean {
+        val value = endpoint.trim()
+        if (value.isEmpty()) return false
+        val host: String
+        val portText: String
+        if (value.startsWith("[")) {
+            val close = value.indexOf(']')
+            if (close < 0) return false
+            host = value.substring(1, close)
+            portText = value.substring(close + 1).removePrefix(":")
+        } else {
+            val idx = value.lastIndexOf(':')
+            if (idx <= 0) return false
+            host = value.substring(0, idx)
+            portText = value.substring(idx + 1)
+        }
+        if (host.isBlank() || host.any { it.isWhitespace() }) return false
+        val port = portText.toIntOrNull() ?: return false
+        return port in 1..65535
     }
 }
